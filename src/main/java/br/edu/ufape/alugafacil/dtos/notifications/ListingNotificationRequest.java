@@ -1,4 +1,4 @@
-package br.edu.ufape.alugafacil.dtos;
+package br.edu.ufape.alugafacil.dtos.notifications;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
