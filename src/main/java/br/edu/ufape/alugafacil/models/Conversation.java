@@ -2,8 +2,6 @@ package br.edu.ufape.alugafacil.models;
 
 import java.util.List;
 
-import org.apache.logging.log4j.message.Message;
-
 import br.edu.ufape.alugafacil.models.enums.ConversationType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
