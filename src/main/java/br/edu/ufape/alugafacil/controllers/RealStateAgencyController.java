@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.edu.ufape.alugafacil.dtos.RealStateAgency.RealStateAgencyRequest;
-import br.edu.ufape.alugafacil.dtos.RealStateAgency.RealStateAgencyResponse;
+import br.edu.ufape.alugafacil.dtos.realStateAgency.RealStateAgencyRequest;
+import br.edu.ufape.alugafacil.dtos.realStateAgency.RealStateAgencyResponse;
 import br.edu.ufape.alugafacil.models.RealStateAgency;
 import br.edu.ufape.alugafacil.services.RealStateAgencyService;
 import org.springframework.web.bind.annotation.PostMapping;

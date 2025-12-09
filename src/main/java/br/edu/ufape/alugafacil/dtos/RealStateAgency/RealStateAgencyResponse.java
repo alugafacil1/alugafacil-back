@@ -1,4 +1,4 @@
-package br.edu.ufape.alugafacil.dtos.RealStateAgency;
+package br.edu.ufape.alugafacil.dtos.realStateAgency;
 
 import lombok.Data;
 
