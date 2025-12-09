@@ -1,11 +1,13 @@
 package br.edu.ufape.alugafacil.services;
 
-import br.edu.ufape.alugafacil.dto.MessageRequest;
+import br.edu.ufape.alugafacil.dtos.message.MessageRequest;
 import br.edu.ufape.alugafacil.models.Conversation;
 import br.edu.ufape.alugafacil.models.Message;
 import br.edu.ufape.alugafacil.repositories.ConversationRepository;
 import br.edu.ufape.alugafacil.repositories.MessageRepository;
+import br.edu.ufape.alugafacil.services.interfaces.IMessageService;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -13,7 +15,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class MessageService {
+public class MessageService implements IMessageService {
 
     private final MessageRepository messageRepository;
     private final ConversationRepository conversationRepository;

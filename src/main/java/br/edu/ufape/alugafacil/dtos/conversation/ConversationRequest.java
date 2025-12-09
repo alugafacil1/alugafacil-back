@@ -1,4 +1,4 @@
-package br.edu.ufape.alugafacil.dto;
+package br.edu.ufape.alugafacil.dtos.conversation;
 
 import br.edu.ufape.alugafacil.models.enums.ConversationType;
 import jakarta.validation.constraints.NotBlank;
