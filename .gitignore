@@ -1,0 +1,59 @@
+# -----------------------------------------
+# Java / Spring Boot / Maven
+# -----------------------------------------
+
+# Compiled class files
+*.class
+
+# Logs
+*.log
+
+# Maven target directory
+target/
+
+# Maven backup files
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# Package Files
+*.jar
+*.war
+*.ear
+
+# IDEs
+############################
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# VS Code
+.vscode/
+
+# OS-specific
+############################
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Linux
+*~
+
+# Temporary files
+############################
+*.tmp
+*.swp
+*.swo
+tmp/
+.factorypath
