@@ -1,15 +1,10 @@
-package br.edu.ufape.alugafacil.models;
+package br.edu.ufape.alugafacil.dtos.RealStateAgency;
 
-import jakarta.persistence.*;
 import lombok.Data;
 
-@Entity
 @Data
-public class RealStateAgency {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+public class RealStateAgencyResponse {
     private String agencyId;
-
     private String name;
     private String corporateName;
     private String email;
@@ -17,8 +12,4 @@ public class RealStateAgency {
     private String cnpj;
     private String website;
     private String phoneNumber;
-
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private User user;
 }
