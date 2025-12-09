@@ -2,8 +2,12 @@ package br.edu.ufape.alugafacil.models;
 
 import java.util.List;
 
-import br.edu.ufape.alugafacil.models.enums.PropertyStatus;
-import br.edu.ufape.alugafacil.models.enums.PropertyType;
+import br.edu.ufape.alugafacil.dto.PropertyDto;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
+import br.edu.ufape.alugafacil.enums.PropertyStatus;
+import br.edu.ufape.alugafacil.enums.PropertyType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
@@ -16,10 +20,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-public class Property {
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class Property { 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String propertyId;
@@ -59,4 +67,24 @@ public class Property {
     @ManyToOne
     @JoinColumn(name = "user_id") // Dono do imóvel
     private User user;
+
+    public static Property getEntity(PropertyDto propertyDto) {
+
+        Property property = Property.builder()
+                .propertyId(propertyDto.getPropertyId()!=null && !propertyDto.getPropertyId().isEmpty() ? propertyDto.getPropertyId() : null)
+                .title(propertyDto.getTitle())
+                .description(propertyDto.getDescription())
+                .priceInCents(propertyDto.getPriceInCents())
+                .numberOfRooms(propertyDto.getNumberOfRooms())
+                .numberOfBedrooms(propertyDto.getNumberOfBedrooms())
+                .numberOfBathrooms(propertyDto.getNumberOfBathrooms())
+                .furnished(propertyDto.getFurnished())
+                .petFriendly(propertyDto.getPetFriendly())
+                .garage(propertyDto.getGarage())
+                .isOwner(propertyDto.getIsOwner())
+                .videoUrl(propertyDto.getVideoUrl())
+                .phoneNumber(propertyDto.getPhoneNumber())
+                .build();
+        return property;
+    }
 }

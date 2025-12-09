@@ -2,7 +2,7 @@ package br.edu.ufape.alugafacil.models;
 
 import java.util.List;
 
-import br.edu.ufape.alugafacil.models.enums.ConversationType;
+import br.edu.ufape.alugafacil.enums.ConversationType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
