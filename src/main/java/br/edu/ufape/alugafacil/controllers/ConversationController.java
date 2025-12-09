@@ -1,6 +1,6 @@
 package br.edu.ufape.alugafacil.controllers;
 
-import br.edu.ufape.alugafacil.dto.ConversationRequest;
+import br.edu.ufape.alugafacil.dtos.conversation.ConversationRequest;
 import br.edu.ufape.alugafacil.models.Conversation;
 import br.edu.ufape.alugafacil.services.ConversationService;
 import jakarta.validation.Valid;

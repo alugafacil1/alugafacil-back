@@ -1,6 +1,6 @@
 package br.edu.ufape.alugafacil.services;
 
-import br.edu.ufape.alugafacil.dto.ConversationRequest;
+import br.edu.ufape.alugafacil.dtos.conversation.ConversationRequest;
 import br.edu.ufape.alugafacil.exceptions.ResourceNotFoundException;
 import br.edu.ufape.alugafacil.models.Conversation;
 import br.edu.ufape.alugafacil.models.Property;
@@ -8,6 +8,7 @@ import br.edu.ufape.alugafacil.models.User;
 import br.edu.ufape.alugafacil.repositories.ConversationRepository;
 import br.edu.ufape.alugafacil.repositories.PropertyRepository;
 import br.edu.ufape.alugafacil.repositories.UserRepository;
+import br.edu.ufape.alugafacil.services.interfaces.IConversationService;
 import br.edu.ufape.alugafacil.utils.MessageUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ConversationService {
+public class ConversationService implements IConversationService {
 
     private final ConversationRepository conversationRepository;
     private final UserRepository userRepository;
