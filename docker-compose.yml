@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: alugafacil_db
+    restart: always
+    environment:
+      POSTGRES_DB: alugafacil
+      POSTGRES_USER: seu_usuario
+      POSTGRES_PASSWORD: sua_senha
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
