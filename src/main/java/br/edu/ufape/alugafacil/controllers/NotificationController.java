@@ -1,19 +1,32 @@
 package br.edu.ufape.alugafacil.controllers;
 
-import br.edu.ufape.alugafacil.dtos.*;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import br.edu.ufape.alugafacil.dtos.notifications.ListingNotificationRequest;
+import br.edu.ufape.alugafacil.dtos.notifications.ListingNotificationResponse;
+import br.edu.ufape.alugafacil.dtos.notifications.MessageNotificationRequest;
+import br.edu.ufape.alugafacil.dtos.notifications.MessageNotificationResponse;
+import br.edu.ufape.alugafacil.dtos.notifications.NotificationResponse;
 import br.edu.ufape.alugafacil.models.ListingNotification;
 import br.edu.ufape.alugafacil.models.MessageNotification;
 import br.edu.ufape.alugafacil.models.Notification;
 import br.edu.ufape.alugafacil.services.NotificationService;
 import jakarta.validation.Valid;
-import org.modelmapper.ModelMapper; 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/notifications")

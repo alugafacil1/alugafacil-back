@@ -1,5 +1,7 @@
 package br.edu.ufape.alugafacil.models;
 
+import java.util.UUID;
+
 import br.edu.ufape.alugafacil.models.enums.PlanType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,7 +16,7 @@ import lombok.Data;
 public class Plan {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String planId;
+    private UUID planId;
 
     private String name;
     private Integer priceInCents;

@@ -2,10 +2,11 @@ package br.edu.ufape.alugafacil.dtos.notifications;
 
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 public abstract class NotificationResponse {
-    private Long id;
+    private UUID id;
     private String title;
     private String body;
     private boolean read;

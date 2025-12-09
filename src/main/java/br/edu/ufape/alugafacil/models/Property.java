@@ -1,6 +1,7 @@
 package br.edu.ufape.alugafacil.models;
 
 import java.util.List;
+import java.util.UUID;
 
 import br.edu.ufape.alugafacil.models.enums.PropertyStatus;
 import br.edu.ufape.alugafacil.models.enums.PropertyType;
@@ -22,7 +23,8 @@ import lombok.Data;
 public class Property {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String propertyId;
+    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "uuid")
+    private UUID propertyId;
 
     private String title;
     
@@ -57,6 +59,6 @@ public class Property {
     private PropertyType type;
 
     @ManyToOne
-    @JoinColumn(name = "user_id") // Dono do imóvel
+    @JoinColumn(name = "user_id")
     private User user;
 }
