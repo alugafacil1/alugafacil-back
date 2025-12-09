@@ -1,6 +1,7 @@
 package br.edu.ufape.alugafacil.models;
 
 import java.util.List;
+import java.util.UUID;
 
 import br.edu.ufape.alugafacil.models.enums.ConversationType;
 import jakarta.persistence.Entity;
@@ -19,7 +20,7 @@ import lombok.Data;
 public class Conversation {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String conversationId;
+    private UUID conversationId;
 
     @ManyToOne
     @JoinColumn(name = "initiator_user_id")

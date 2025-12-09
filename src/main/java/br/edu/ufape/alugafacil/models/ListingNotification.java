@@ -1,5 +1,7 @@
 package br.edu.ufape.alugafacil.models;
 
+import java.util.UUID;
+
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.Data;
@@ -10,6 +12,6 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ListingNotification extends Notification {
-    private String propertyId;
-    private String alertName;
+    private UUID propertyId;
+    private UUID alertName;
 }

@@ -1,5 +1,7 @@
 package br.edu.ufape.alugafacil.models;
 
+import java.util.UUID;
+
 import br.edu.ufape.alugafacil.models.enums.PaymentStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,7 +18,7 @@ import lombok.Data;
 public class Subscription {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String subscriptionId;
+    private UUID subscriptionId;
 
     private java.time.LocalDate startDate;
     private java.time.LocalDate nextBillingDate;

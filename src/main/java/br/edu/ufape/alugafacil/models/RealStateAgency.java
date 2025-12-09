@@ -1,6 +1,8 @@
 package br.edu.ufape.alugafacil.models;
 
 import jakarta.persistence.*;
+import java.util.UUID;
+
 import lombok.Data;
 
 @Entity
@@ -8,7 +10,7 @@ import lombok.Data;
 public class RealStateAgency {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String agencyId;
+    private UUID agencyId;
 
     private String name;
     private String corporateName;

@@ -1,5 +1,7 @@
 package br.edu.ufape.alugafacil.models;
 
+import java.util.UUID;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,9 +16,9 @@ import lombok.Data;
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String messageId;
+    private UUID messageId;
 
-    private String senderId;
+    private UUID senderId;
     
     @Column(columnDefinition = "TEXT")
     private String content;

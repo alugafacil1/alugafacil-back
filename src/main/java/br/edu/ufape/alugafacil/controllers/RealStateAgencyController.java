@@ -95,7 +95,8 @@ public class RealStateAgencyController {
 
     private RealStateAgencyResponse convertToResponse(RealStateAgency realStateAgency) {
         RealStateAgencyResponse response = new RealStateAgencyResponse();
-        response.setAgencyId(realStateAgency.getAgencyId());
+
+        response.setAgencyId(realStateAgency.getAgencyId().toString());
         response.setName(realStateAgency.getName());
         response.setCorporateName(realStateAgency.getCorporateName());
         response.setEmail(realStateAgency.getEmail());
@@ -103,6 +104,7 @@ public class RealStateAgencyController {
         response.setCnpj(realStateAgency.getCnpj());
         response.setWebsite(realStateAgency.getWebsite());
         response.setPhoneNumber(realStateAgency.getPhoneNumber());
+        
         return response;
     }
 }

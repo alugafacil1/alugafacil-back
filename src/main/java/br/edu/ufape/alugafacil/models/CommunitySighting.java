@@ -1,5 +1,7 @@
 package br.edu.ufape.alugafacil.models;
 
+import java.util.UUID;
+
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,9 +14,9 @@ import lombok.Data;
 public class CommunitySighting {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String sightingId;
+    private UUID sightingId;
 
-    private String submitterUserId;
+    private UUID submitterUserId;
     private String photoUrl;
     private String phoneNumber;
 
