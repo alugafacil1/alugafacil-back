@@ -5,11 +5,13 @@ import br.edu.ufape.alugafacil.models.Message;
 import br.edu.ufape.alugafacil.services.MessageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/messages")
@@ -25,12 +27,12 @@ public class MessageController {
     }
 
     @GetMapping("/conversation/{conversationId}")
-    public ResponseEntity<List<Message>> listByConversation(@PathVariable String conversationId) {
+    public ResponseEntity<List<Message>> listByConversation(@PathVariable UUID conversationId) {
         return ResponseEntity.ok(messageService.getMessagesByConversation(conversationId));
     }
     
     @PatchMapping("/{messageId}/read")
-    public ResponseEntity<Void> markAsRead(@PathVariable String messageId) {
+    public ResponseEntity<Void> markAsRead(@PathVariable UUID messageId) {
         messageService.markAsRead(messageId);
         return ResponseEntity.noContent().build();
     }

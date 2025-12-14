@@ -13,5 +13,5 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class MessageNotification extends Notification {
     private UUID conversationId;
-    private UUID senderName;
+    private String senderName;
 }
