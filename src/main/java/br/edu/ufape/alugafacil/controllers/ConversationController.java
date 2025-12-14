@@ -2,21 +2,23 @@ package br.edu.ufape.alugafacil.controllers;
 
 import br.edu.ufape.alugafacil.dtos.conversation.ConversationRequest;
 import br.edu.ufape.alugafacil.models.Conversation;
-import br.edu.ufape.alugafacil.services.ConversationService;
+import br.edu.ufape.alugafacil.services.interfaces.IConversationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/conversations")
 @RequiredArgsConstructor
 public class ConversationController {
 
-    private final ConversationService conversationService;
+    private final IConversationService conversationService;
 
     @PostMapping
     public ResponseEntity<Conversation> create(@Valid @RequestBody ConversationRequest dto) {
@@ -30,17 +32,17 @@ public class ConversationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Conversation> findById(@PathVariable String id) {
+    public ResponseEntity<Conversation> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(conversationService.getConversationById(id));
     }
     
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Conversation>> listByUser(@PathVariable String userId) {
+    public ResponseEntity<List<Conversation>> listByUser(@PathVariable UUID userId) {
         return ResponseEntity.ok(conversationService.getConversationsByUser(userId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id) {
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
         conversationService.deleteConversation(id);
         return ResponseEntity.noContent().build();
     }

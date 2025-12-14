@@ -1,0 +1,67 @@
+package br.edu.ufape.alugafacil.dtos.property;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
+import java.util.List;
+import java.util.UUID;
+
+import br.edu.ufape.alugafacil.dtos.address.AddressRequest;
+import br.edu.ufape.alugafacil.dtos.geolocation.GeolocationRequest;
+import br.edu.ufape.alugafacil.models.enums.PropertyStatus;
+import br.edu.ufape.alugafacil.models.enums.PropertyType;
+
+public record PropertyRequest(
+    @NotBlank(message = "O título é obrigatório")
+    String title,
+
+    @NotBlank(message = "A descrição é obrigatória")
+    String description,
+
+    @NotNull(message = "O endereço é obrigatório")
+    @Valid
+    AddressRequest address,
+
+    @NotNull(message = "A geolocalização é obrigatória")
+    @Valid
+    GeolocationRequest geolocation,
+
+    @NotNull(message = "O preço é obrigatório")
+    @Positive(message = "O preço deve ser positivo")
+    Integer priceInCents,
+
+    @Min(value = 0, message = "Número de cômodos não pode ser negativo")
+    Integer numberOfRooms,
+
+    @Min(value = 0)
+    Integer numberOfBedrooms,
+
+    @Min(value = 0)
+    Integer numberOfBathrooms,
+
+    @NotNull
+    Boolean furnished,
+
+    @NotNull
+    Boolean petFriendly,
+
+    @NotNull
+    Boolean garage,
+    
+    @NotNull
+    Boolean isOwner,
+
+    String videoUrl,
+
+    @NotBlank(message = "Telefone para contato é obrigatório")
+    String phoneNumber,
+
+    List<String> photoUrls,
+
+    PropertyStatus status,
+
+    @NotNull(message = "O tipo do imóvel é obrigatório")
+    PropertyType type,
+
+    @NotNull(message = "O ID do proprietário é obrigatório")
+    UUID userId
+) {}

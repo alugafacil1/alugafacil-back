@@ -13,5 +13,5 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class ListingNotification extends Notification {
     private UUID propertyId;
-    private UUID alertName;
+    private String alertName;
 }

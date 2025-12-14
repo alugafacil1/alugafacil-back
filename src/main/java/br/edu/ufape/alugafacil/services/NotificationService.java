@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class NotificationService {
@@ -15,22 +16,29 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
 
-
-    public ListingNotification createListingNotification(String propertyId, String alertName) {
+    public ListingNotification createListingNotification(UUID propertyId, String alertName) {
         ListingNotification notification = new ListingNotification();
         notification.setTitle("New Property Listed!");
-        notification.setBody("A property matching your alert has been listed.");
-        notification.setPropertyId(propertyId);
+        notification.setMessage("A property matching your alert has been listed.");
+        
+        if (propertyId != null) {
+            notification.setPropertyId(propertyId);
+        }
+        
         notification.setAlertName(alertName);
         
         return notificationRepository.save(notification);
     }
 
-    public MessageNotification createMessageNotification(String conversationId, String senderName) {
+    public MessageNotification createMessageNotification(UUID conversationId, String senderName) {
         MessageNotification notification = new MessageNotification();
         notification.setTitle("New Message");
-        notification.setBody("You received a message from " + senderName);
-        notification.setConversationId(conversationId);
+        notification.setMessage("You received a message from " + senderName);
+        
+        if (conversationId != null) {
+            notification.setConversationId(conversationId);
+        }
+        
         notification.setSenderName(senderName);
 
         return notificationRepository.save(notification);
@@ -41,20 +49,19 @@ public class NotificationService {
         return notificationRepository.findAll();
     }
 
-    public Notification getNotificationById(Long id) {
+    public Notification getNotificationById(UUID id) {
         return notificationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Notification not found with ID: " + id));
     }
 
-    
-    public Notification markAsRead(Long id) {
+    public Notification markAsRead(UUID id) {
         Notification notification = getNotificationById(id);
         notification.setRead(true);
         return notificationRepository.save(notification);
     }
 
 
-    public void deleteNotification(Long id) {
+    public void deleteNotification(UUID id) {
         if (!notificationRepository.existsById(id)) {
             throw new RuntimeException("Notification not found with ID: " + id);
         }

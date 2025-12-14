@@ -10,5 +10,4 @@ import br.edu.ufape.alugafacil.models.Property;
 
 @Repository
 public interface PropertyRepository extends JpaRepository<Property, UUID> {
-
 }
