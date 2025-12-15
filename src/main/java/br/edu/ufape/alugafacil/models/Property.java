@@ -3,6 +3,9 @@ package br.edu.ufape.alugafacil.models;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
 import br.edu.ufape.alugafacil.models.enums.PropertyStatus;
 import br.edu.ufape.alugafacil.models.enums.PropertyType;
 import jakarta.persistence.Column;
@@ -17,6 +20,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -61,4 +65,11 @@ public class Property {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 }

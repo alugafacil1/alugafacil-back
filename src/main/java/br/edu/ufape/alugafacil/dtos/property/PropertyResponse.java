@@ -1,5 +1,6 @@
 package br.edu.ufape.alugafacil.dtos.property;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,5 +28,6 @@ public record PropertyResponse(
     List<String> photoUrls,
     PropertyStatus status,
     PropertyType type,
-    UUID ownerId
+    UUID ownerId,
+    LocalDateTime createdAt
 ) {}

@@ -14,8 +14,8 @@ public interface PropertyMapper {
 
     // --- Request (DTO) -> Entity ---
     
-    // Ignoramos 'user' aqui porque vamos setar manualmente no service após buscar no banco
-    // Ignoramos 'propertyId' pois é gerado automaticamente
+    // ignora 'user' aqui porque vamos setar manualmente no service após buscar no banco
+    // ignora 'propertyId' pois é gerado automaticamente
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "propertyId", ignore = true)
     // O MapStruct converte AddressRequest -> Address e GeolocationRequest -> Geolocation automaticamente
@@ -23,7 +23,7 @@ public interface PropertyMapper {
 
     // --- Entity -> Response (DTO) ---
 
-    // Mapeamos o ID do user da entidade para o campo userId do record
+    // mapeia o ID do user da entidade para o campo userId do record
     @Mapping(source = "user.userId", target = "ownerId")
     PropertyResponse toResponse(Property property);
     
