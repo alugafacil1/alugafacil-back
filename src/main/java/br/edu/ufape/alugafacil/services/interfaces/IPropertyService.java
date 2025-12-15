@@ -14,6 +14,4 @@ public interface IPropertyService {
     List<PropertyResponse> getPropertiesByUserId(UUID userId);
     PropertyResponse updateProperty(UUID id, PropertyRequest request);
     void deleteProperty(UUID id);
-    
-    PropertyResponse convertToResponse(Property property);
 }
