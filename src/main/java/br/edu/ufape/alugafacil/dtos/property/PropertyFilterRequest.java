@@ -19,7 +19,13 @@ public class PropertyFilterRequest {
 	private PropertyType type;
     private PropertyStatus status;
     
+    
+    
     // Localização
     private String city;
     private String neighborhood;
+    
+    private Double lat;
+    private Double lon;
+    private Double radius;
 }
