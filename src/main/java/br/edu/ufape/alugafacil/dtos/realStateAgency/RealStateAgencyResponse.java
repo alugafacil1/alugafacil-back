@@ -1,10 +1,12 @@
 package br.edu.ufape.alugafacil.dtos.realStateAgency;
 
+import java.util.UUID;
+
 import lombok.Data;
 
 @Data
 public class RealStateAgencyResponse {
-    private String agencyId;
+    private UUID agencyId;
     private String name;
     private String corporateName;
     private String email;

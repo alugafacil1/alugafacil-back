@@ -1,6 +1,7 @@
 package br.edu.ufape.alugafacil.services;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class RealStateAgencyService  {
         return realStateAgencyRepository.findAll();
     }
 
-    public RealStateAgency getRealStateAgencyById(String agencyId) {
+    public RealStateAgency getRealStateAgencyById(UUID agencyId) {
         return realStateAgencyRepository.findById(agencyId).orElse(null);
     }
 
@@ -37,7 +38,7 @@ public class RealStateAgencyService  {
         return realStateAgencyRepository.save(newRealStateAgency);
     }
 
-    public RealStateAgency updateRealStateAgency(String agencyId, RealStateAgencyRequest realStateAgency) {
+    public RealStateAgency updateRealStateAgency(UUID agencyId, RealStateAgencyRequest realStateAgency) {
         RealStateAgency existingAgency = realStateAgencyRepository.findById(agencyId).orElse(null);
         
         if (existingAgency != null) {
@@ -54,7 +55,7 @@ public class RealStateAgencyService  {
         return null;
     }
 
-    public void deleteRealStateAgency(String agencyId) {
+    public void deleteRealStateAgency(UUID agencyId) {
         realStateAgencyRepository.deleteById(agencyId);
     }
 }

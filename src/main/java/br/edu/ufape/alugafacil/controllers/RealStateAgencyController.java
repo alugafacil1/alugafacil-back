@@ -1,6 +1,7 @@
 package br.edu.ufape.alugafacil.controllers;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import br.edu.ufape.alugafacil.dtos.realStateAgency.RealStateAgencyRequest;
 import br.edu.ufape.alugafacil.dtos.realStateAgency.RealStateAgencyResponse;
 import br.edu.ufape.alugafacil.models.RealStateAgency;
 import br.edu.ufape.alugafacil.services.RealStateAgencyService;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,7 +46,7 @@ public class RealStateAgencyController {
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<RealStateAgencyResponse> getRealStateAgencyById(@PathVariable String id) {
+    public ResponseEntity<RealStateAgencyResponse> getRealStateAgencyById(@PathVariable UUID id) {
         try {
             RealStateAgency realStateAgency = realStateAgencyService.getRealStateAgencyById(id);
 
@@ -70,7 +72,7 @@ public class RealStateAgencyController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRealStateAgency(@PathVariable String id) {
+    public ResponseEntity<Void> deleteRealStateAgency(@PathVariable UUID id) {
         try {
             realStateAgencyService.deleteRealStateAgency(id);
 
@@ -81,7 +83,7 @@ public class RealStateAgencyController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RealStateAgencyResponse> updateRealStateAgency(@PathVariable String id, @RequestBody RealStateAgencyRequest realStateAgencyRequest) {
+    public ResponseEntity<RealStateAgencyResponse> updateRealStateAgency(@PathVariable UUID id, @RequestBody RealStateAgencyRequest realStateAgencyRequest) {
         try {
             RealStateAgency realStateAgency = realStateAgencyService.updateRealStateAgency(id, realStateAgencyRequest);
 
@@ -96,7 +98,7 @@ public class RealStateAgencyController {
     private RealStateAgencyResponse convertToResponse(RealStateAgency realStateAgency) {
         RealStateAgencyResponse response = new RealStateAgencyResponse();
 
-        response.setAgencyId(realStateAgency.getAgencyId().toString());
+        response.setAgencyId(realStateAgency.getAgencyId());
         response.setName(realStateAgency.getName());
         response.setCorporateName(realStateAgency.getCorporateName());
         response.setEmail(realStateAgency.getEmail());

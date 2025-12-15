@@ -8,11 +8,13 @@ import br.edu.ufape.alugafacil.exceptions.PlanNotFoundException;
 import br.edu.ufape.alugafacil.models.Plan;
 import br.edu.ufape.alugafacil.models.enums.PlanType;
 import br.edu.ufape.alugafacil.repositories.PlanRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,7 +47,7 @@ public class PlanService {
     }
 
     @Transactional(readOnly = true)
-    public PlanResponseDTO getPlanById(String planId) {
+    public PlanResponseDTO getPlanById(UUID planId) {
         Plan plan = planRepository.findById(planId)
                 .orElseThrow(() -> new PlanNotFoundException(planId));
         return new PlanResponseDTO(plan);
@@ -73,7 +75,7 @@ public class PlanService {
     }
 
     @Transactional
-    public PlanResponseDTO updatePlan(String planId, PlanRequestDTO planRequestDTO) {
+    public PlanResponseDTO updatePlan(UUID planId, PlanRequestDTO planRequestDTO) {
        
         Plan plan = planRepository.findById(planId)
                 .orElseThrow(() -> new PlanNotFoundException(planId));
@@ -99,7 +101,7 @@ public class PlanService {
     }
 
     @Transactional
-    public void deletePlan(String planId) {
+    public void deletePlan(UUID planId) {
         if (!planRepository.existsById(planId)) {
             throw new PlanNotFoundException(planId);
         }
