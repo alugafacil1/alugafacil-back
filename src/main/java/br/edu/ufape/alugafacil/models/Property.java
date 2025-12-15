@@ -84,6 +84,11 @@ public class Property {
                 .isOwner(propertyDto.getIsOwner())
                 .videoUrl(propertyDto.getVideoUrl())
                 .phoneNumber(propertyDto.getPhoneNumber())
+                .photoUrls(propertyDto.getPhotoUrls())
+                .status(propertyDto.getStatus())
+                .type(propertyDto.getType())
+                .address(Address.getEntity(propertyDto.getAddress()))
+                .geolocation(Geolocation.getEntity(propertyDto.getGeolocation()))
                 .build();
         return property;
     }

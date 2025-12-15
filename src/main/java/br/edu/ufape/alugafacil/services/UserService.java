@@ -1,6 +1,8 @@
 package br.edu.ufape.alugafacil.services;
 
+import br.edu.ufape.alugafacil.exceptions.UserCpfDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserNotFoundException;
+import br.edu.ufape.alugafacil.models.Property;
 import br.edu.ufape.alugafacil.models.RealStateAgency;
 import br.edu.ufape.alugafacil.models.Subscription;
 import br.edu.ufape.alugafacil.models.User;
@@ -8,7 +10,9 @@ import br.edu.ufape.alugafacil.dto.UserDto;
 import br.edu.ufape.alugafacil.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService implements IUserService{
@@ -21,18 +25,46 @@ public class UserService implements IUserService{
 
 
     @Override
-    public void saveUser(UserDto userDto) throws UserNotFoundException {
-        throw new UnsupportedOperationException("Método ainda não implementado");
+    public void saveUser(UserDto userDto) throws UserCpfDuplicadoException {
+
+        try{
+            User user = this.getEntity(userDto);
+
+            Optional<User> byCpf = this.userRepository.findUserByCpf(userDto.getCpf());
+
+            if (byCpf.isPresent()) {
+                throw  new UserCpfDuplicadoException();
+            }
+
+            this.userRepository.save(user);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public List<User> getAllUsers() {
-        return List.of();
+
+        List<User> usuarios = new ArrayList<>();
+
+        usuarios = this.userRepository.findAll();
+
+        return usuarios;
     }
 
     @Override
     public UserDto getUserById(String id) throws UserNotFoundException {
-        throw new UnsupportedOperationException("Método ainda não implementado");
+
+        Optional<User> byId = this.userRepository.findById(id);
+
+        if (!byId.isPresent()) {
+            throw new UserNotFoundException();
+        }
+
+        UserDto userDto = new UserDto();
+        return userDto;
+
     }
 
     @Override
@@ -64,6 +96,10 @@ public class UserService implements IUserService{
                 .toList();
         user.setSubscriptions(subscriptions);
 
+        List<Property> properties = userDto.getPropertiesDtos().stream()
+                .map(Property::getEntity)
+                .toList();
+        user.setProperties(properties);
 
         return user;
     }

@@ -2,12 +2,13 @@ package br.edu.ufape.alugafacil.services;
 
 import java.util.List;
 import br.edu.ufape.alugafacil.dto.UserDto;
+import br.edu.ufape.alugafacil.exceptions.UserCpfDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserNotFoundException;
 import br.edu.ufape.alugafacil.models.User;
 
 public interface IUserService {
 
-    void saveUser(UserDto userDto) throws UserNotFoundException;
+    void saveUser(UserDto userDto) throws UserCpfDuplicadoException;
 
     List<User> getAllUsers();
 
