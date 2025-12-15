@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 
 import br.edu.ufape.alugafacil.dtos.property.PropertyFilterRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
@@ -61,6 +63,21 @@ public class PropertyService implements IPropertyService {
 		BooleanBuilder builder = new BooleanBuilder();
 		
 		if (filters != null) {
+			if (filters.getLat() != null && filters.getLon() != null && filters.getRadius() != null) {
+				NumberExpression<Double> dbLat = qProperty.geolocation.latitude;
+				NumberExpression<Double> dbLon = qProperty.geolocation.longitude;
+				
+				NumberExpression<Double> distanceExpression = Expressions.numberTemplate(Double.class,
+			            "(6371 * acos(cos(radians({0})) * cos(radians({1})) * cos(radians({2}) - radians({3})) + sin(radians({0})) * sin(radians({1}))))",
+			            Expressions.constant(filters.getLat()), // {0}
+			            dbLat,                                  // {1}
+			            dbLon,                                  // {2}
+			            Expressions.constant(filters.getLon())  // {3}
+			    );
+				
+				builder.and(distanceExpression.loe(filters.getRadius()));
+
+			}
             if (filters.getMinPrice() != null) {
                 builder.and(qProperty.priceInCents.goe(filters.getMinPrice() * 100));
             }
