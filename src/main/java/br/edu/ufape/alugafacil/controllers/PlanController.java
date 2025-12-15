@@ -5,12 +5,14 @@ import br.edu.ufape.alugafacil.dtos.PlanResponseDTO;
 import br.edu.ufape.alugafacil.models.enums.PlanType;
 import br.edu.ufape.alugafacil.services.PlanService;
 import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/plans")
@@ -26,7 +28,7 @@ public class PlanController {
     }
 
     @GetMapping("/{planId}")
-    public ResponseEntity<PlanResponseDTO> getPlanById(@PathVariable String planId) {
+    public ResponseEntity<PlanResponseDTO> getPlanById(@PathVariable UUID planId) {
         PlanResponseDTO response = planService.getPlanById(planId);
         return ResponseEntity.ok(response);
     }
@@ -51,14 +53,14 @@ public class PlanController {
 
     @PutMapping("/{planId}")
     public ResponseEntity<PlanResponseDTO> updatePlan(
-            @PathVariable String planId,
+            @PathVariable UUID planId,
             @Valid @RequestBody PlanRequestDTO planRequestDTO) {
         PlanResponseDTO response = planService.updatePlan(planId, planRequestDTO);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{planId}")
-    public ResponseEntity<Void> deletePlan(@PathVariable String planId) {
+    public ResponseEntity<Void> deletePlan(@PathVariable UUID planId) {
         planService.deletePlan(planId);
         return ResponseEntity.noContent().build();
     }
