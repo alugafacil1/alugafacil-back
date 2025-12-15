@@ -2,6 +2,7 @@ package br.edu.ufape.alugafacil.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyResponse;
@@ -25,4 +26,8 @@ public interface PropertyMapper {
     // Mapeamos o ID do user da entidade para o campo userId do record
     @Mapping(source = "user.userId", target = "ownerId")
     PropertyResponse toResponse(Property property);
+    
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "propertyId", ignore = true)
+    void updateEntityFromDto(PropertyRequest request, @MappingTarget Property entity);
 }
