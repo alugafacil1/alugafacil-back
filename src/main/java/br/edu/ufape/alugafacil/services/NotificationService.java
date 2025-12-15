@@ -20,10 +20,7 @@ public class NotificationService {
         ListingNotification notification = new ListingNotification();
         notification.setTitle("New Property Listed!");
         notification.setMessage("A property matching your alert has been listed.");
-        
-        if (propertyId != null) {
-            notification.setPropertyId(propertyId);
-        }
+        notification.setPropertyId(propertyId);
         
         notification.setAlertName(alertName);
         

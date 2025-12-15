@@ -19,14 +19,14 @@ import br.edu.ufape.alugafacil.models.MessageNotification;
 import br.edu.ufape.alugafacil.models.Notification;
 import br.edu.ufape.alugafacil.services.NotificationService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/notifications")
-@CrossOrigin(origins = "*") 
+@CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class NotificationController {
-
-    @Autowired
-    private NotificationService notificationService;
+    private final NotificationService notificationService;
 
     @PostMapping("/listing")
     public ResponseEntity<ListingNotificationResponse> createListingNotification(@Valid @RequestBody ListingNotificationRequest request) {
