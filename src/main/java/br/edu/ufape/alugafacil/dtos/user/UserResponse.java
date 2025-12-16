@@ -4,7 +4,6 @@ import br.edu.ufape.alugafacil.enums.UserType;
 import br.edu.ufape.alugafacil.models.Property;
 import br.edu.ufape.alugafacil.models.RealStateAgency;
 import br.edu.ufape.alugafacil.models.Subscription;
-import jakarta.persistence.*;
 
 import java.util.List;
 import java.util.UUID;

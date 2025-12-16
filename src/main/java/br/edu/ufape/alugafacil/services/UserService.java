@@ -14,10 +14,9 @@ import br.edu.ufape.alugafacil.models.User;
 import br.edu.ufape.alugafacil.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 
 @Service
@@ -31,7 +30,6 @@ public class UserService implements IUserService{
 
     @Override
     public UserResponse saveUser(UserRequest userRequest) throws UserCpfDuplicadoException, UserEmailDuplicadoException {
-
         try {
 
             Optional<User> byCpf = this.userRepository.findUserByCpf(userRequest.cpf());
@@ -82,7 +80,7 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public UserResponse getUserById(String id) throws UserNotFoundException {
+    public UserResponse getUserById(UUID id) throws UserNotFoundException {
 
         Optional<User> byId = this.userRepository.findById(id);
 
@@ -95,7 +93,7 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public UserResponse updateUser(String id, UserRequest userRequest) throws UserNotFoundException , UserCpfDuplicadoException,  UserEmailDuplicadoException{
+    public UserResponse updateUser(UUID id, UserRequest userRequest) throws UserNotFoundException , UserCpfDuplicadoException,  UserEmailDuplicadoException{
 
         Optional<User> byId = userRepository.findUserByCpf(userRequest.cpf());
 
@@ -138,7 +136,7 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public void deleteUser(String id) throws UserNotFoundException {
+    public void deleteUser(UUID id) throws UserNotFoundException {
 
         Optional<User> byId = userRepository.findById(id);
 

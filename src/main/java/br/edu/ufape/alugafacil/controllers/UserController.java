@@ -6,25 +6,24 @@ import br.edu.ufape.alugafacil.dtos.user.UserResponse;
 import br.edu.ufape.alugafacil.exceptions.UserCpfDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserEmailDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserNotFoundException;
-import br.edu.ufape.alugafacil.services.UserService;
+import br.edu.ufape.alugafacil.services.IUserService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
+
+import lombok.AllArgsConstructor;
 
 @RestController
 @RequestMapping("api/users")
+@AllArgsConstructor
 public class UserController {
-
-    private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
+    private final IUserService userService;
 
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody UserRequest user) {
+    public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest user) {
 
         try {
          UserResponse userResponse = userService.saveUser(user);
@@ -43,7 +42,7 @@ public class UserController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable String id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable UUID id) {
 
         try {
             UserResponse userResponse = userService.getUserById(id);
@@ -56,7 +55,7 @@ public class UserController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody UserRequest user) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable UUID id, @RequestBody UserRequest user) {
         try {
             UserResponse updated = userService.updateUser(id, user);
             return ResponseEntity.ok(updated);
@@ -67,7 +66,7 @@ public class UserController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable String id) {
+    public ResponseEntity<UserResponse> deleteUser(@PathVariable UUID id) {
         try {
             userService.deleteUser(id);
         } catch (UserNotFoundException e) {
