@@ -1,7 +1,12 @@
 package br.edu.ufape.alugafacil.models;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,6 +25,7 @@ import lombok.Data;
 public abstract class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id")
     private UUID notificationId;
 
     private String title;
@@ -28,12 +34,19 @@ public abstract class Notification {
     
     private String imageUrl;
 
-    private java.time.LocalDateTime createdAt;
     private boolean isRead;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
     
     public void prepareForSave() {
         if (this.createdAt == null) {

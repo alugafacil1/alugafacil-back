@@ -23,7 +23,7 @@ public class UserController {
     private final IUserService userService;
 
     @PostMapping
-    public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest user) {
+    public ResponseEntity<?> createUser(@RequestBody UserRequest user) {
 
         try {
          UserResponse userResponse = userService.saveUser(user);
@@ -42,8 +42,7 @@ public class UserController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable UUID id) {
-
+    public ResponseEntity<?> getUserById(@PathVariable UUID id) {
         try {
             UserResponse userResponse = userService.getUserById(id);
             return ResponseEntity.ok(userResponse);
@@ -55,7 +54,7 @@ public class UserController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable UUID id, @RequestBody UserRequest user) {
+    public ResponseEntity<?> updateUser(@PathVariable UUID id, @RequestBody UserRequest user) {
         try {
             UserResponse updated = userService.updateUser(id, user);
             return ResponseEntity.ok(updated);
@@ -66,7 +65,7 @@ public class UserController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<UserResponse> deleteUser(@PathVariable UUID id) {
+    public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
         try {
             userService.deleteUser(id);
         } catch (UserNotFoundException e) {

@@ -1,7 +1,11 @@
 package br.edu.ufape.alugafacil.models;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import br.edu.ufape.alugafacil.enums.PropertyStatus;
 import br.edu.ufape.alugafacil.enums.PropertyType;
@@ -23,6 +27,7 @@ import lombok.Data;
 public class Property {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id")
     private UUID propertyId;
 
     private String title;
@@ -60,4 +65,12 @@ public class Property {
     @ManyToOne
     @JoinColumn(name = "user_id") // Dono do imóvel
     private User user;
+
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }
