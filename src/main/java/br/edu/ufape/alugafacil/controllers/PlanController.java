@@ -2,7 +2,7 @@ package br.edu.ufape.alugafacil.controllers;
 
 import br.edu.ufape.alugafacil.dtos.PlanRequestDTO;
 import br.edu.ufape.alugafacil.dtos.PlanResponseDTO;
-import br.edu.ufape.alugafacil.models.enums.PlanType;
+import br.edu.ufape.alugafacil.enums.PlanType;
 import br.edu.ufape.alugafacil.services.PlanService;
 import jakarta.validation.Valid;
 
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/plans")
+@RequestMapping("api/plans")
 public class PlanController {
 
     @Autowired

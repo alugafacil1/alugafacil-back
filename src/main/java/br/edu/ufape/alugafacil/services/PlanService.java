@@ -6,7 +6,7 @@ import br.edu.ufape.alugafacil.exceptions.DuplicatePlanNameException;
 import br.edu.ufape.alugafacil.exceptions.InvalidPlanTypeException;
 import br.edu.ufape.alugafacil.exceptions.PlanNotFoundException;
 import br.edu.ufape.alugafacil.models.Plan;
-import br.edu.ufape.alugafacil.models.enums.PlanType;
+import br.edu.ufape.alugafacil.enums.PlanType;
 import br.edu.ufape.alugafacil.repositories.PlanRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;

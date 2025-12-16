@@ -1,7 +1,7 @@
 package br.edu.ufape.alugafacil.repositories;
 
 import br.edu.ufape.alugafacil.models.Plan;
-import br.edu.ufape.alugafacil.models.enums.PlanType;
+import br.edu.ufape.alugafacil.enums.PlanType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

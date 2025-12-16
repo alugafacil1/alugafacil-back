@@ -1,0 +1,24 @@
+package br.edu.ufape.alugafacil.services;
+
+import java.util.List;
+import java.util.UUID;
+
+import br.edu.ufape.alugafacil.dtos.user.UserRequest;
+import br.edu.ufape.alugafacil.dtos.user.UserResponse;
+import br.edu.ufape.alugafacil.exceptions.UserCpfDuplicadoException;
+import br.edu.ufape.alugafacil.exceptions.UserEmailDuplicadoException;
+import br.edu.ufape.alugafacil.exceptions.UserNotFoundException;
+import br.edu.ufape.alugafacil.models.User;
+
+public interface IUserService {
+
+    UserResponse saveUser(UserRequest userRequest) throws UserCpfDuplicadoException, UserEmailDuplicadoException;
+
+    List<UserResponse> getAllUsers();
+
+    UserResponse getUserById(UUID id) throws UserNotFoundException;
+
+    UserResponse updateUser(UUID id, UserRequest userRequest) throws UserNotFoundException, UserCpfDuplicadoException;
+
+    void deleteUser(UUID id) throws UserNotFoundException;
+}

@@ -19,7 +19,7 @@ import br.edu.ufape.alugafacil.dtos.property.PropertyResponse;
 import br.edu.ufape.alugafacil.mappers.PropertyMapper;
 import br.edu.ufape.alugafacil.models.Property;
 import br.edu.ufape.alugafacil.models.QProperty;
-import br.edu.ufape.alugafacil.models.enums.PropertyStatus;
+import br.edu.ufape.alugafacil.enums.PropertyStatus;
 import br.edu.ufape.alugafacil.repositories.PropertyRepository;
 import br.edu.ufape.alugafacil.services.interfaces.IPropertyService;
 import jakarta.transaction.Transactional;

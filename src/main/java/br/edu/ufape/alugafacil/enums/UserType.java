@@ -1,4 +1,4 @@
-package br.edu.ufape.alugafacil.models.enums;
+package br.edu.ufape.alugafacil.enums;
 
 public enum UserType {
     TENANT, REALTOR, OWNER, ADMIN

@@ -3,7 +3,7 @@ package br.edu.ufape.alugafacil.dtos;
 import java.util.UUID;
 
 import br.edu.ufape.alugafacil.models.Plan;
-import br.edu.ufape.alugafacil.models.enums.PlanType;
+import br.edu.ufape.alugafacil.enums.PlanType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,7 +23,7 @@ public class PlanResponseDTO {
     private PlanType planType;
 
     public PlanResponseDTO(Plan plan) {
-        this.planId = plan.getPlanId();
+
         this.name = plan.getName();
         this.priceInCents = plan.getPriceInCents();
         this.hasVideo = plan.getHasVideo();

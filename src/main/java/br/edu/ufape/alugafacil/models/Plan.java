@@ -1,8 +1,6 @@
 package br.edu.ufape.alugafacil.models;
 
-import java.util.UUID;
-
-import br.edu.ufape.alugafacil.models.enums.PlanType;
+import br.edu.ufape.alugafacil.enums.PlanType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -10,6 +8,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
+
+import java.util.UUID;
 
 @Entity
 @Data

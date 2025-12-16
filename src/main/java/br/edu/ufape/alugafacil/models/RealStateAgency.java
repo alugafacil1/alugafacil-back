@@ -1,9 +1,14 @@
 package br.edu.ufape.alugafacil.models;
 
-import jakarta.persistence.*;
-import java.util.UUID;
-
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.Data;
+
+import java.util.UUID;
 
 @Entity
 @Data

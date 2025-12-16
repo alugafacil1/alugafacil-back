@@ -1,4 +1,4 @@
-package br.edu.ufape.alugafacil.models.enums;
+package br.edu.ufape.alugafacil.enums;
 
 public enum PaymentStatus {
 	ACTIVE, OVERDUE, CANCELLED

@@ -1,7 +1,7 @@
 package br.edu.ufape.alugafacil.exceptions;
 
 import java.util.Arrays;
-import br.edu.ufape.alugafacil.models.enums.PlanType;
+import br.edu.ufape.alugafacil.enums.PlanType;
 
 public class InvalidPlanTypeException extends RuntimeException {
     public InvalidPlanTypeException(String planType) {

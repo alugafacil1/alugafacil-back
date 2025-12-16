@@ -2,7 +2,7 @@ package br.edu.ufape.alugafacil.dtos.conversation;
 
 import java.util.UUID;
 
-import br.edu.ufape.alugafacil.models.enums.ConversationType;
+import br.edu.ufape.alugafacil.enums.ConversationType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
