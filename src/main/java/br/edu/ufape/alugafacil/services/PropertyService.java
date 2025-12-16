@@ -1,5 +1,6 @@
 package br.edu.ufape.alugafacil.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -7,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
@@ -21,6 +23,7 @@ import br.edu.ufape.alugafacil.models.Property;
 import br.edu.ufape.alugafacil.models.QProperty;
 import br.edu.ufape.alugafacil.models.enums.PropertyStatus;
 import br.edu.ufape.alugafacil.repositories.PropertyRepository;
+import br.edu.ufape.alugafacil.services.interfaces.IFileStorageService;
 import br.edu.ufape.alugafacil.services.interfaces.IPropertyService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +35,7 @@ public class PropertyService implements IPropertyService {
 	private final PropertyRepository propertyRepository;
 //	private final UserRepository userRepository;
 	private final PropertyMapper propertyMapper;
+	private final IFileStorageService fileStorageService;
 	
 	@Override
 	@Transactional
@@ -145,5 +149,22 @@ public class PropertyService implements IPropertyService {
 		
 		propertyRepository.deleteById(id);
 		
+	}
+
+	@Override
+	public PropertyResponse addPhotos(UUID id, List<MultipartFile> files) {
+		Property property = propertyRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Imóvel não encontrado"));
+		
+		if (property.getPhotoUrls() == null) {
+			property.setPhotoUrls(new ArrayList<>());
+		}
+		
+		for (MultipartFile file : files) {
+			String photoUrl = fileStorageService.uploadFile(file);
+			property.getPhotoUrls().add(photoUrl);
+		}
+		
+		return propertyMapper.toResponse(propertyRepository.save(property));
 	}
 }

@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import br.edu.ufape.alugafacil.dtos.property.PropertyFilterRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
@@ -17,4 +18,5 @@ public interface IPropertyService {
 	List<PropertyResponse> getPropertiesByUserId(UUID userId);
     PropertyResponse updateProperty(UUID id, PropertyRequest request);
     void deleteProperty(UUID id);
+    PropertyResponse addPhotos(UUID id, List<MultipartFile> files);
 }
