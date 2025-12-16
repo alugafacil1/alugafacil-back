@@ -1,12 +1,9 @@
-package br.edu.ufape.alugafacil.dto;
-
+package br.edu.ufape.alugafacil.dtos.realStateAgency;
 
 import lombok.Data;
 
 @Data
-public class RealStateAgencyDto {
-
-    private String agencyId;
+public class RealStateAgencyRequest {
     private String name;
     private String corporateName;
     private String email;

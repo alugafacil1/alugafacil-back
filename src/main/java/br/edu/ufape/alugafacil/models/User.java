@@ -1,6 +1,7 @@
 package br.edu.ufape.alugafacil.models;
 
 import java.util.List;
+import java.util.UUID;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,7 +30,7 @@ import lombok.NoArgsConstructor;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String userId;
+    private UUID userId;
 
     private String name;
     
@@ -38,7 +39,7 @@ public class User {
     
     private String photoUrl;
     private String cpf;
-    private String creciNumber; // Para corretores [cite: 88]
+    private String creciNumber;
     private String passwordHash;
     private String phoneNumber;
 
@@ -49,7 +50,7 @@ public class User {
     private RealStateAgency agency;
 
     @OneToMany(mappedBy = "user")
-    private List<Property> properties; // Imóveis do proprietário
+    private List<Property> properties;
 
     @OneToMany(mappedBy = "user")
     private List<Subscription> subscriptions;

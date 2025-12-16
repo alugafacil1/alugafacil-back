@@ -1,42 +1,69 @@
 package br.edu.ufape.alugafacil.services;
 
+import br.edu.ufape.alugafacil.dtos.user.UserRequest;
+import br.edu.ufape.alugafacil.dtos.user.UserResponse;
 import br.edu.ufape.alugafacil.exceptions.UserCpfDuplicadoException;
+import br.edu.ufape.alugafacil.exceptions.UserEmailDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserNotFoundException;
+import br.edu.ufape.alugafacil.mappers.PropertyMapper;
+import br.edu.ufape.alugafacil.mappers.RealStateAgencyPropertyMapper;
+import br.edu.ufape.alugafacil.mappers.UserPropertyMapper;
 import br.edu.ufape.alugafacil.models.Property;
 import br.edu.ufape.alugafacil.models.RealStateAgency;
-import br.edu.ufape.alugafacil.models.Subscription;
 import br.edu.ufape.alugafacil.models.User;
-import br.edu.ufape.alugafacil.dto.UserDto;
 import br.edu.ufape.alugafacil.repositories.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Optional;
 
+
 @Service
+@RequiredArgsConstructor
 public class UserService implements IUserService{
 
     private final UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
+    private final UserPropertyMapper userPropertyMapper;
+    private final PropertyMapper propertyMapper;
+    private final RealStateAgencyPropertyMapper realStateAgencyPropertyMapper;
 
     @Override
-    public void saveUser(UserDto userDto) throws UserCpfDuplicadoException {
+    public UserResponse saveUser(UserRequest userRequest) throws UserCpfDuplicadoException, UserEmailDuplicadoException {
 
-        try{
-            User user = this.getEntity(userDto);
+        try {
 
-            Optional<User> byCpf = this.userRepository.findUserByCpf(userDto.getCpf());
+            Optional<User> byCpf = this.userRepository.findUserByCpf(userRequest.cpf());
 
             if (byCpf.isPresent()) {
-                throw  new UserCpfDuplicadoException();
+                throw new UserCpfDuplicadoException();
             }
 
-            this.userRepository.save(user);
+            User userByEmail = this.userRepository.findByEmail(userRequest.email());
+
+            if (userByEmail.getUserId() != null && !userByEmail.getEmail().isEmpty()) {
+                throw new UserEmailDuplicadoException();
+            }
+
+            User user = userPropertyMapper.toEntity(userRequest);
+
+            List<Property> properties = userRequest.properties().stream()
+                    .map(p -> {
+                        Property property = propertyMapper.toEntity(p);
+                        property.setUser(user);
+                        return property;
+                    })
+                    .toList();
+
+            user.setProperties(properties);
+
+            RealStateAgency realStateAgency = realStateAgencyPropertyMapper.toEntity(userRequest.agency());
+            user.setAgency(realStateAgency);
+
+             User save = this.userRepository.save(user);
+
+             return userPropertyMapper.toResponse(save);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -44,17 +71,18 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
 
-        List<User> usuarios = new ArrayList<>();
+        List<User> usuarios = this.userRepository.findAll();
+        List<UserResponse> usuariosResp = usuarios.stream()
+                .map(u -> userPropertyMapper.toResponse(u))
+                .toList();
 
-        usuarios = this.userRepository.findAll();
-
-        return usuarios;
+        return usuariosResp;
     }
 
     @Override
-    public UserDto getUserById(String id) throws UserNotFoundException {
+    public UserResponse getUserById(String id) throws UserNotFoundException {
 
         Optional<User> byId = this.userRepository.findById(id);
 
@@ -62,45 +90,64 @@ public class UserService implements IUserService{
             throw new UserNotFoundException();
         }
 
-        UserDto userDto = new UserDto();
-        return userDto;
+        return userPropertyMapper.toResponse(byId.get());
 
     }
 
     @Override
-    public void updateUser(String id, UserDto userDto) throws UserNotFoundException {
-        throw new UnsupportedOperationException("Método ainda não implementado");
+    public UserResponse updateUser(String id, UserRequest userRequest) throws UserNotFoundException , UserCpfDuplicadoException,  UserEmailDuplicadoException{
+
+        Optional<User> byId = userRepository.findUserByCpf(userRequest.cpf());
+
+        if (!byId.isPresent()) {
+            throw new UserNotFoundException();
+        }
+
+        User user = byId.get();
+
+        Optional<User> byCpf = this.userRepository.findUserByCpf(userRequest.cpf());
+
+        if (byCpf.isPresent() && !byCpf.get().getUserId().equals(user.getUserId())) {
+            throw new UserCpfDuplicadoException();
+        }
+
+        User userByEmail = this.userRepository.findByEmail(userRequest.email());
+
+        if (userByEmail.getUserId() != null && !userByEmail.getEmail().isEmpty() && !userByEmail.getUserId().equals(user.getUserId())) {
+            throw new UserEmailDuplicadoException();
+        }
+
+        userPropertyMapper.updateEntityFromRequest(userRequest, user);
+
+        List<Property> properties = userRequest.properties().stream()
+                .map(p -> {
+                    Property property = propertyMapper.toEntity(p);
+                    property.setUser(user);
+                    return property;
+                })
+                .toList();
+
+        user.setProperties(properties);
+
+        RealStateAgency realStateAgency = realStateAgencyPropertyMapper.toEntity(userRequest.agency());
+        user.setAgency(realStateAgency);
+
+        User save = userRepository.save(user);
+
+        return userPropertyMapper.toResponse(save);
     }
 
     @Override
     public void deleteUser(String id) throws UserNotFoundException {
-        throw new UnsupportedOperationException("Método ainda não implementado");
+
+        Optional<User> byId = userRepository.findById(id);
+
+        if (!byId.isPresent()) {
+            throw new UserNotFoundException();
+        }
+
+        this.userRepository.delete(byId.get());
     }
 
-    public User getEntity(UserDto userDto) {
 
-        User user = User.builder()
-                .name(userDto.getName())
-                .email(userDto.getEmail())
-                .cpf(userDto.getCpf())
-                .creciNumber(userDto.getCreciNumber())
-                .phoneNumber(userDto.getPhoneNumber())
-                .userType(userDto.getUserType())
-                .build();
-
-        RealStateAgency realStateAgency = RealStateAgency.getEntity(userDto.getAgency());
-        user.setAgency(realStateAgency);
-
-        List<Subscription> subscriptions = userDto.getSubscriptionsDtos().stream()
-                .map(Subscription::getEntity)
-                .toList();
-        user.setSubscriptions(subscriptions);
-
-        List<Property> properties = userDto.getPropertiesDtos().stream()
-                .map(Property::getEntity)
-                .toList();
-        user.setProperties(properties);
-
-        return user;
-    }
 }

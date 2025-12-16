@@ -2,10 +2,6 @@ package br.edu.ufape.alugafacil.models;
 
 import java.util.List;
 
-import br.edu.ufape.alugafacil.dto.PropertyDto;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-
 import br.edu.ufape.alugafacil.enums.PropertyStatus;
 import br.edu.ufape.alugafacil.enums.PropertyType;
 import jakarta.persistence.Column;
@@ -20,14 +16,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class Property { 
+public class Property {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String propertyId;
@@ -67,29 +59,4 @@ public class Property {
     @ManyToOne
     @JoinColumn(name = "user_id") // Dono do imóvel
     private User user;
-
-    public static Property getEntity(PropertyDto propertyDto) {
-
-        Property property = Property.builder()
-                .propertyId(propertyDto.getPropertyId()!=null && !propertyDto.getPropertyId().isEmpty() ? propertyDto.getPropertyId() : null)
-                .title(propertyDto.getTitle())
-                .description(propertyDto.getDescription())
-                .priceInCents(propertyDto.getPriceInCents())
-                .numberOfRooms(propertyDto.getNumberOfRooms())
-                .numberOfBedrooms(propertyDto.getNumberOfBedrooms())
-                .numberOfBathrooms(propertyDto.getNumberOfBathrooms())
-                .furnished(propertyDto.getFurnished())
-                .petFriendly(propertyDto.getPetFriendly())
-                .garage(propertyDto.getGarage())
-                .isOwner(propertyDto.getIsOwner())
-                .videoUrl(propertyDto.getVideoUrl())
-                .phoneNumber(propertyDto.getPhoneNumber())
-                .photoUrls(propertyDto.getPhotoUrls())
-                .status(propertyDto.getStatus())
-                .type(propertyDto.getType())
-                .address(Address.getEntity(propertyDto.getAddress()))
-                .geolocation(Geolocation.getEntity(propertyDto.getGeolocation()))
-                .build();
-        return property;
-    }
 }

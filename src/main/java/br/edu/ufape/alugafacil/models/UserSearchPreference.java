@@ -1,5 +1,7 @@
 package br.edu.ufape.alugafacil.models;
 
+import java.util.UUID;
+
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
@@ -17,7 +19,7 @@ import lombok.Data;
 public class UserSearchPreference {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String preferenceId;
+    private UUID preferenceId;
 
     private String name;
     private Integer maxPriceInCents;
