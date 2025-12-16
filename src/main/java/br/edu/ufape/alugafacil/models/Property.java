@@ -1,6 +1,7 @@
 package br.edu.ufape.alugafacil.models;
 
 import java.util.List;
+import java.util.UUID;
 
 import br.edu.ufape.alugafacil.enums.PropertyStatus;
 import br.edu.ufape.alugafacil.enums.PropertyType;
@@ -22,7 +23,7 @@ import lombok.Data;
 public class Property {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String propertyId;
+    private UUID propertyId;
 
     private String title;
     

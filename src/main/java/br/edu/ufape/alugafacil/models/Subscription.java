@@ -11,12 +11,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Entity
 @Data
 public class Subscription {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String subscriptionId;
+    private UUID subscriptionId;
 
     private java.time.LocalDate startDate;
     private java.time.LocalDate nextBillingDate;
