@@ -1,10 +1,12 @@
-INSERT INTO users (user_id, name, email, password_hash, user_type) 
+INSERT INTO users (id, name, email, password_hash, user_type, created_at, updated_at) 
 VALUES (
     'd2f4d3c0-5a1b-4e3f-8c2a-1b2c3d4e5f6a',
     'Usuario Teste', 
     'teste@alugafacil.com', 
     '123',
-    'OWNER'
+    'OWNER',
+    NOW(),
+    NOW()
 );
 
 -- 1. Apartamento Heliópolis (Caro, Mobiliado)

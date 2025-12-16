@@ -1,9 +1,14 @@
 package br.edu.ufape.alugafacil.models;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
 import br.edu.ufape.alugafacil.enums.ConversationType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -20,6 +25,7 @@ import lombok.Data;
 public class Conversation {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id")
     private UUID conversationId;
 
     @ManyToOne
@@ -34,7 +40,13 @@ public class Conversation {
     @JoinColumn(name = "property_id")
     private Property property;
     
-    private java.time.LocalDateTime createdAt;
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
     private ConversationType type;

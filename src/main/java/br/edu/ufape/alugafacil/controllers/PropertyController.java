@@ -18,11 +18,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import br.edu.ufape.alugafacil.dtos.property.PropertyFilterRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyResponse;
+import br.edu.ufape.alugafacil.services.interfaces.IFileStorageService;
 import br.edu.ufape.alugafacil.services.interfaces.IPropertyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +37,7 @@ import lombok.RequiredArgsConstructor;
 public class PropertyController {
 	
 	private final IPropertyService propertyService;
+	private final IFileStorageService fileStorageService;
 	
 	@PostMapping
 	public ResponseEntity<PropertyResponse> create(@Valid @RequestBody PropertyRequest request) {
@@ -74,4 +78,14 @@ public class PropertyController {
 		propertyService.deleteProperty(id);
 		return ResponseEntity.noContent().build();
 	}
+	
+	@PostMapping("/{id}/photos")
+	public ResponseEntity<PropertyResponse> uploadPhoto(
+				@PathVariable UUID id, 
+				@RequestParam("files") List<MultipartFile> files
+			) {
+		PropertyResponse response = propertyService.addPhotos(id, files);
+	    return ResponseEntity.ok(response);
+	}
 }
+
