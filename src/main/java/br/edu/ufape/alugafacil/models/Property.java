@@ -3,11 +3,8 @@ package br.edu.ufape.alugafacil.models;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-
-import br.edu.ufape.alugafacil.models.enums.PropertyStatus;
-import br.edu.ufape.alugafacil.models.enums.PropertyType;
+import br.edu.ufape.alugafacil.enums.PropertyStatus;
+import br.edu.ufape.alugafacil.enums.PropertyType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
@@ -20,14 +17,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
-import java.time.LocalDateTime;
 
 @Entity
 @Data
 public class Property {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "uuid")
     private UUID propertyId;
 
     private String title;
@@ -63,13 +58,6 @@ public class Property {
     private PropertyType type;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id") // Dono do imóvel
     private User user;
-
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
 }

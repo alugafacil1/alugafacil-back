@@ -3,7 +3,10 @@ package br.edu.ufape.alugafacil.models;
 import java.util.List;
 import java.util.UUID;
 
-import br.edu.ufape.alugafacil.models.enums.UserType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
+import br.edu.ufape.alugafacil.enums.UserType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,10 +19,14 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "users")
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

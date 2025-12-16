@@ -22,7 +22,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/notifications")
+@RequestMapping("api/notifications")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class NotificationController {

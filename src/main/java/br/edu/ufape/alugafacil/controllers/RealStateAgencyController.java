@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
-@RequestMapping("/api/realStateAgencies")
+@RequestMapping("api/realStateAgencies")
 @CrossOrigin(origins = "*")
 public class RealStateAgencyController {
     

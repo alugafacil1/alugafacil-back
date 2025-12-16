@@ -1,8 +1,6 @@
 package br.edu.ufape.alugafacil.models;
 
-import java.util.UUID;
-
-import br.edu.ufape.alugafacil.models.enums.PaymentStatus;
+import br.edu.ufape.alugafacil.enums.PaymentStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -12,6 +10,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
+
+import java.util.UUID;
 
 @Entity
 @Data

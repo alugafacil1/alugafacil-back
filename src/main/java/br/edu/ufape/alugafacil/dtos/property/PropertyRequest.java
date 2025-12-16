@@ -7,8 +7,8 @@ import java.util.UUID;
 
 import br.edu.ufape.alugafacil.dtos.address.AddressRequest;
 import br.edu.ufape.alugafacil.dtos.geolocation.GeolocationRequest;
-import br.edu.ufape.alugafacil.models.enums.PropertyStatus;
-import br.edu.ufape.alugafacil.models.enums.PropertyType;
+import br.edu.ufape.alugafacil.enums.PropertyStatus;
+import br.edu.ufape.alugafacil.enums.PropertyType;
 
 public record PropertyRequest(
     @NotBlank(message = "O título é obrigatório")

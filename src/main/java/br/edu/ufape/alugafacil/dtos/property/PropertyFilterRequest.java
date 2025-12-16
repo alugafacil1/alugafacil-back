@@ -1,7 +1,7 @@
 package br.edu.ufape.alugafacil.dtos.property;
 
-import br.edu.ufape.alugafacil.models.enums.PropertyStatus;
-import br.edu.ufape.alugafacil.models.enums.PropertyType;
+import br.edu.ufape.alugafacil.enums.PropertyStatus;
+import br.edu.ufape.alugafacil.enums.PropertyType;
 import lombok.Data;
 
 @Data
