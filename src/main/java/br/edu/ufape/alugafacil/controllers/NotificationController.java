@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,13 +25,15 @@ import lombok.RequiredArgsConstructor;
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class NotificationController {
+
     private final NotificationService notificationService;
 
     @PostMapping("/listing")
     public ResponseEntity<ListingNotificationResponse> createListingNotification(@Valid @RequestBody ListingNotificationRequest request) {
         ListingNotification entity = notificationService.createListingNotification(
                 request.getPropertyId(), 
-                request.getAlertName()
+                request.getAlertName(),
+                request.getTargetToken()
         );
         return new ResponseEntity<>((ListingNotificationResponse) convertToDto(entity), HttpStatus.CREATED);
     }
@@ -41,7 +42,8 @@ public class NotificationController {
     public ResponseEntity<MessageNotificationResponse> createMessageNotification(@Valid @RequestBody MessageNotificationRequest request) {
         MessageNotification entity = notificationService.createMessageNotification(
                 request.getConversationId(),
-                request.getSenderName()
+                request.getSenderName(),
+                request.getTargetToken()
         );
         return new ResponseEntity<>((MessageNotificationResponse) convertToDto(entity), HttpStatus.CREATED);
     }
@@ -75,6 +77,7 @@ public class NotificationController {
         return ResponseEntity.noContent().build();
     }
     
+    // Converter manual (Entity -> DTO)
     private NotificationResponse convertToDto(Notification entity) {
         NotificationResponse dto = null;
         
@@ -101,12 +104,14 @@ public class NotificationController {
             throw new IllegalArgumentException("Tipo de notificação desconhecido");
         }
 
+        // CORREÇÃO: Usar getId() em vez de getNotificationId()
+        // O campo na classe pai foi renomeado para 'id' para funcionar com Lombok e JPA padrão
         if (entity.getNotificationId() != null) {
             dto.setId(entity.getNotificationId());
         }
         
         dto.setTitle(entity.getTitle());
-        dto.setBody(entity.getMessage());
+        dto.setBody(entity.getMessage()); // Mapeando message (entity) para body (dto)
         dto.setRead(entity.isRead());
         dto.setCreatedAt(entity.getCreatedAt());
         
