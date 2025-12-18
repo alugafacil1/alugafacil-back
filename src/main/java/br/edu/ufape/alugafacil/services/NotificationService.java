@@ -1,99 +1,115 @@
 package br.edu.ufape.alugafacil.services;
 
-import br.edu.ufape.alugafacil.models.ListingNotification;
-import br.edu.ufape.alugafacil.models.MessageNotification;
-import br.edu.ufape.alugafacil.models.Notification;
-import br.edu.ufape.alugafacil.services.interfaces.INotificationService;
-import br.edu.ufape.alugafacil.repositories.NotificationRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import br.edu.ufape.alugafacil.dtos.notifications.ListingNotificationRequest;
+import br.edu.ufape.alugafacil.dtos.notifications.ListingNotificationResponse;
+import br.edu.ufape.alugafacil.dtos.notifications.MessageNotificationRequest;
+import br.edu.ufape.alugafacil.dtos.notifications.MessageNotificationResponse;
+import br.edu.ufape.alugafacil.dtos.notifications.NotificationResponse;
+import br.edu.ufape.alugafacil.mappers.NotificationMapper;
+import br.edu.ufape.alugafacil.models.ListingNotification;
+import br.edu.ufape.alugafacil.models.MessageNotification;
+import br.edu.ufape.alugafacil.models.Notification;
+import br.edu.ufape.alugafacil.repositories.NotificationRepository;
+import br.edu.ufape.alugafacil.services.interfaces.INotificationService;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class NotificationService implements INotificationService {
 
-    @Autowired
-    private NotificationRepository notificationRepository;
-
-    @Autowired
-    private FCMService fcmService; // Injeta a INTERFACE, não a classe
+    private final NotificationRepository notificationRepository;
+    private final NotificationMapper notificationMapper;
+    private final FCMService fcmService;
 
     @Override
-    public ListingNotification createListingNotification(UUID propertyId, String alertName, String targetFcmToken) {
-        ListingNotification notification = new ListingNotification();
-        notification.setTitle("New Property Listed!");
-        notification.setMessage("A property matching your alert '" + alertName + "' has been listed.");
-        notification.setPropertyId(propertyId);
-        notification.setAlertName(alertName);
+    @Transactional
+    public ListingNotificationResponse createListingNotification(ListingNotificationRequest request) {
+        // 1. Converter DTO -> Entity (MapStruct já preenche title e message)
+        ListingNotification notification = notificationMapper.toEntity(request);
         
+        // 2. Salvar
         ListingNotification saved = notificationRepository.save(notification);
 
-        if (targetFcmToken != null && !targetFcmToken.isEmpty()) {
+        // 3. Enviar Push Notification (FCM)
+        if (request.getTargetToken() != null && !request.getTargetToken().isEmpty()) {
             Map<String, String> data = new HashMap<>();
             data.put("type", "LISTING");
             data.put("notificationId", saved.getNotificationId().toString());
-            data.put("propertyId", propertyId.toString());
+            data.put("propertyId", request.getPropertyId().toString());
 
-            fcmService.sendNotification(targetFcmToken, saved.getTitle(), saved.getMessage(), data);
+            fcmService.sendNotification(request.getTargetToken(), saved.getTitle(), saved.getMessage(), data);
         }
-        
-        return saved;
+
+        // 4. Converter Entity -> DTO Response
+        return notificationMapper.toResponse(saved);
     }
 
     @Override
-    public MessageNotification createMessageNotification(UUID conversationId, String senderName, String targetFcmToken) {
-        MessageNotification notification = new MessageNotification();
-        notification.setTitle("New Message");
-        notification.setMessage("You received a message from " + senderName);
+    @Transactional
+    public MessageNotificationResponse createMessageNotification(MessageNotificationRequest request) {
         
-        if (conversationId != null) {
-            notification.setConversationId(conversationId);
-        }
-        notification.setSenderName(senderName);
+        MessageNotification notification = notificationMapper.toEntity(request);
 
+        
         MessageNotification saved = notificationRepository.save(notification);
 
-        if (targetFcmToken != null && !targetFcmToken.isEmpty()) {
+        
+        if (request.getTargetToken() != null && !request.getTargetToken().isEmpty()) {
             Map<String, String> data = new HashMap<>();
             data.put("type", "MESSAGE");
             data.put("notificationId", saved.getNotificationId().toString());
-            if (conversationId != null) {
-                data.put("conversationId", conversationId.toString());
+            if (request.getConversationId() != null) {
+                data.put("conversationId", request.getConversationId().toString());
             }
-            data.put("senderName", senderName);
+            data.put("senderName", request.getSenderName());
 
-            fcmService.sendNotification(targetFcmToken, saved.getTitle(), saved.getMessage(), data);
+            fcmService.sendNotification(request.getTargetToken(), saved.getTitle(), saved.getMessage(), data);
         }
 
-        return saved;
+        
+        return notificationMapper.toResponse(saved);
     }
 
     @Override
-    public List<Notification> getAllNotifications() {
-        return notificationRepository.findAll();
+    public Page<NotificationResponse> getAllNotifications(Pageable pageable) {
+        return notificationRepository.findAll(pageable)
+                .map(notificationMapper::toResponse);
     }
 
     @Override
-    public Notification getNotificationById(UUID id) {
-        return notificationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Notification not found with ID: " + id));
+    public NotificationResponse getNotificationById(UUID id) {
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Notificação não encontrada com ID: " + id));
+        
+        return notificationMapper.toResponse(notification);
     }
 
     @Override
-    public Notification markAsRead(UUID id) {
-        Notification notification = getNotificationById(id);
+    @Transactional
+    public NotificationResponse markAsRead(UUID id) {
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Notificação não encontrada com ID: " + id));
+        
         notification.setRead(true);
-        return notificationRepository.save(notification);
+        Notification saved = notificationRepository.save(notification);
+        
+        return notificationMapper.toResponse(saved);
     }
 
     @Override
+    @Transactional
     public void deleteNotification(UUID id) {
         if (!notificationRepository.existsById(id)) {
-            throw new RuntimeException("Notification not found with ID: " + id);
+            throw new RuntimeException("Notificação não encontrada com ID: " + id);
         }
         notificationRepository.deleteById(id);
     }

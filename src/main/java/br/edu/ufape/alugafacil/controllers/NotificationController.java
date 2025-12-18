@@ -1,120 +1,75 @@
 package br.edu.ufape.alugafacil.controllers;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import br.edu.ufape.alugafacil.dtos.notifications.ListingNotificationRequest;
 import br.edu.ufape.alugafacil.dtos.notifications.ListingNotificationResponse;
 import br.edu.ufape.alugafacil.dtos.notifications.MessageNotificationRequest;
 import br.edu.ufape.alugafacil.dtos.notifications.MessageNotificationResponse;
 import br.edu.ufape.alugafacil.dtos.notifications.NotificationResponse;
-import br.edu.ufape.alugafacil.models.ListingNotification;
-import br.edu.ufape.alugafacil.models.MessageNotification;
-import br.edu.ufape.alugafacil.models.Notification;
 import br.edu.ufape.alugafacil.services.NotificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("api/notifications")
-@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class NotificationController {
 
     private final NotificationService notificationService;
 
     @PostMapping("/listing")
     public ResponseEntity<ListingNotificationResponse> createListingNotification(@Valid @RequestBody ListingNotificationRequest request) {
-        ListingNotification entity = notificationService.createListingNotification(
-                request.getPropertyId(), 
-                request.getAlertName(),
-                request.getTargetToken()
-        );
-        return new ResponseEntity<>((ListingNotificationResponse) convertToDto(entity), HttpStatus.CREATED);
+        ListingNotificationResponse response = notificationService.createListingNotification(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/message")
     public ResponseEntity<MessageNotificationResponse> createMessageNotification(@Valid @RequestBody MessageNotificationRequest request) {
-        MessageNotification entity = notificationService.createMessageNotification(
-                request.getConversationId(),
-                request.getSenderName(),
-                request.getTargetToken()
-        );
-        return new ResponseEntity<>((MessageNotificationResponse) convertToDto(entity), HttpStatus.CREATED);
+        MessageNotificationResponse response = notificationService.createMessageNotification(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<NotificationResponse>> getAllNotifications() {
-        List<Notification> entities = notificationService.getAllNotifications();
-        
-        List<NotificationResponse> dtos = entities.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(dtos);
+    public ResponseEntity<Page<NotificationResponse>> listAll(
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, page = 0, size = 10) Pageable pageable
+    ) {
+        Page<NotificationResponse> response = notificationService.getAllNotifications(pageable);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<NotificationResponse> getNotificationById(@PathVariable UUID id) {
-        Notification entity = notificationService.getNotificationById(id);
-        return ResponseEntity.ok(convertToDto(entity));
+    public ResponseEntity<NotificationResponse> getById(@PathVariable UUID id) {
+        NotificationResponse response = notificationService.getNotificationById(id);
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/read")
     public ResponseEntity<NotificationResponse> markAsRead(@PathVariable UUID id) {
-        Notification entity = notificationService.markAsRead(id);
-        return ResponseEntity.ok(convertToDto(entity));
+        NotificationResponse response = notificationService.markAsRead(id);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteNotification(@PathVariable UUID id) {
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
         notificationService.deleteNotification(id);
         return ResponseEntity.noContent().build();
-    }
-    
-    // Converter manual (Entity -> DTO)
-    private NotificationResponse convertToDto(Notification entity) {
-        NotificationResponse dto = null;
-        
-        if (entity instanceof ListingNotification) {
-            ListingNotification ln = (ListingNotification) entity;
-            ListingNotificationResponse resp = new ListingNotificationResponse();
-            
-            if (ln.getPropertyId() != null) {
-                resp.setPropertyId(ln.getPropertyId());
-            }
-            resp.setAlertName(ln.getAlertName());
-            dto = resp;
-        } 
-        else if (entity instanceof MessageNotification) {
-            MessageNotification mn = (MessageNotification) entity;
-            MessageNotificationResponse resp = new MessageNotificationResponse();
-            
-            if (mn.getConversationId() != null) {
-                resp.setConversationId(mn.getConversationId());
-            }
-            resp.setSenderName(mn.getSenderName());
-            dto = resp;
-        } else {
-            throw new IllegalArgumentException("Tipo de notificação desconhecido");
-        }
-
-        // CORREÇÃO: Usar getId() em vez de getNotificationId()
-        // O campo na classe pai foi renomeado para 'id' para funcionar com Lombok e JPA padrão
-        if (entity.getNotificationId() != null) {
-            dto.setId(entity.getNotificationId());
-        }
-        
-        dto.setTitle(entity.getTitle());
-        dto.setBody(entity.getMessage()); // Mapeando message (entity) para body (dto)
-        dto.setRead(entity.isRead());
-        dto.setCreatedAt(entity.getCreatedAt());
-        
-        return dto;
     }
 }

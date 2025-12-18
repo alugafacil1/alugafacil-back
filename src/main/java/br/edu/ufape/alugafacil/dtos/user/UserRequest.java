@@ -30,5 +30,6 @@ public record UserRequest (
         UserType userType,
         RealStateAgencyRequest agency,
         List<PropertyRequest> properties,
-        List<Subscription> subscriptions
+        List<Subscription> subscriptions,
+        String fcmToken
 ) { }

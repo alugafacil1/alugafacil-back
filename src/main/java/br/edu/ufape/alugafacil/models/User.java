@@ -48,6 +48,9 @@ public class User {
     private String passwordHash;
     private String phoneNumber;
 
+    @Column(name = "fcm_token")
+    private String fcmToken;
+
     @Enumerated(EnumType.STRING)
     private UserType userType;
 

@@ -147,5 +147,14 @@ public class UserService implements IUserService{
         this.userRepository.delete(byId.get());
     }
 
+    @Override
+    public void updateFcmToken(UUID userId, String token) throws UserNotFoundException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException());
+        
+        user.setFcmToken(token);
+        userRepository.save(user);
+    }
+
 
 }

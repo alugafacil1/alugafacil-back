@@ -1,16 +1,27 @@
 package br.edu.ufape.alugafacil.services.interfaces;
 
-import br.edu.ufape.alugafacil.models.ListingNotification;
-import br.edu.ufape.alugafacil.models.MessageNotification;
-import br.edu.ufape.alugafacil.models.Notification;
-import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import br.edu.ufape.alugafacil.dtos.notifications.ListingNotificationRequest;
+import br.edu.ufape.alugafacil.dtos.notifications.ListingNotificationResponse;
+import br.edu.ufape.alugafacil.dtos.notifications.MessageNotificationRequest;
+import br.edu.ufape.alugafacil.dtos.notifications.MessageNotificationResponse;
+import br.edu.ufape.alugafacil.dtos.notifications.NotificationResponse;
+
 public interface INotificationService {
-    ListingNotification createListingNotification(UUID propertyId, String alertName, String targetFcmToken);
-    MessageNotification createMessageNotification(UUID conversationId, String senderName, String targetFcmToken);
-    List<Notification> getAllNotifications();
-    Notification getNotificationById(UUID id);
-    Notification markAsRead(UUID id);
+    
+    ListingNotificationResponse createListingNotification(ListingNotificationRequest request);
+    
+    MessageNotificationResponse createMessageNotification(MessageNotificationRequest request);
+    
+    Page<NotificationResponse> getAllNotifications(Pageable pageable);
+    
+    NotificationResponse getNotificationById(UUID id);
+    
+    NotificationResponse markAsRead(UUID id);
+    
     void deleteNotification(UUID id);
 }
