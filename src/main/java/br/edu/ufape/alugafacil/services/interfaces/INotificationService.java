@@ -13,15 +13,17 @@ import br.edu.ufape.alugafacil.dtos.notifications.NotificationResponse;
 
 public interface INotificationService {
     
+    // Métodos chamados pelo Controller (via API/Frontend)
     ListingNotificationResponse createListingNotification(ListingNotificationRequest request);
-    
     MessageNotificationResponse createMessageNotification(MessageNotificationRequest request);
     
+    
+    void notifyListingMatch(UUID userId, UUID propertyId, String alertName);
+    void notifyNewMessage(UUID recipientId, UUID conversationId, String senderName);
+    
+
     Page<NotificationResponse> getAllNotifications(Pageable pageable);
-    
     NotificationResponse getNotificationById(UUID id);
-    
     NotificationResponse markAsRead(UUID id);
-    
     void deleteNotification(UUID id);
 }
