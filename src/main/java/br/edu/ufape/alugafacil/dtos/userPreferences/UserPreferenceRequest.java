@@ -1,0 +1,20 @@
+package br.edu.ufape.alugafacil.dtos.userPreferences;
+
+import br.edu.ufape.alugafacil.dtos.geolocation.GeolocationRequest;
+import br.edu.ufape.alugafacil.dtos.user.UserRequest;
+
+
+public record UserPreferenceRequest(
+         String name,
+         Integer maxPriceInCents,
+         Integer minBedrooms,
+         Integer minBathrooms,
+         Boolean petFriendly,
+         Boolean furnished,
+         String city,
+         String neighborhood,
+         Integer searchRadiusInMeters,
+         Integer garageCount,
+         GeolocationRequest searchCenter,
+         UserRequest user
+) { }
