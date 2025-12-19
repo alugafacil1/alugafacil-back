@@ -1,5 +1,6 @@
 package br.edu.ufape.alugafacil.dtos.realStateAgency;
 
+import java.util.List;
 import java.util.UUID;
 
 import lombok.Data;
@@ -14,4 +15,6 @@ public class RealStateAgencyResponse {
     private String cnpj;
     private String website;
     private String phoneNumber;
+
+    private List<MemberResponse> members;
 }

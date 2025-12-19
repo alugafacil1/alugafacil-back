@@ -9,17 +9,20 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import br.edu.ufape.alugafacil.dtos.realStateAgency.RealStateAgencyRequest;
-import br.edu.ufape.alugafacil.dtos.realStateAgency.RealStateAgencyResponse;
-import br.edu.ufape.alugafacil.models.RealStateAgency;
-import br.edu.ufape.alugafacil.services.RealStateAgencyService;
-
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import br.edu.ufape.alugafacil.dtos.realStateAgency.MemberResponse;
+import br.edu.ufape.alugafacil.dtos.realStateAgency.RealStateAgencyRequest;
+import br.edu.ufape.alugafacil.dtos.realStateAgency.RealStateAgencyResponse;
+import br.edu.ufape.alugafacil.dtos.realStateAgency.TransferRequest;
+import br.edu.ufape.alugafacil.models.RealStateAgency;
+import br.edu.ufape.alugafacil.models.User;
+import br.edu.ufape.alugafacil.services.RealStateAgencyService;
 
 
 @RestController
@@ -95,6 +98,54 @@ public class RealStateAgencyController {
         }
     }
 
+    @GetMapping("/{agencyId}/members")
+    public ResponseEntity<List<MemberResponse>> getMembers(@PathVariable UUID agencyId) {
+        try {
+            List<User> users = realStateAgencyService.getMembers(agencyId);
+            List<MemberResponse> responses = users.stream().map(u -> {
+                MemberResponse mr = new MemberResponse();
+                mr.setUserId(u.getUserId());
+                mr.setName(u.getName());
+                mr.setEmail(u.getEmail());
+                mr.setUserType(u.getUserType());
+                return mr;
+            }).toList();
+            return ResponseEntity.ok(responses);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/{agencyId}/members/{userId}")
+    public ResponseEntity<Void> addMember(@PathVariable UUID agencyId, @PathVariable UUID userId, @RequestHeader("X-User-Id") UUID actingUserId) {
+        try {
+            realStateAgencyService.addMember(agencyId, userId, actingUserId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @DeleteMapping("/{agencyId}/members/{userId}")
+    public ResponseEntity<Void> removeMember(@PathVariable UUID agencyId, @PathVariable UUID userId, @RequestHeader("X-User-Id") UUID actingUserId) {
+        try {
+            realStateAgencyService.removeMember(agencyId, userId, actingUserId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/{agencyId}/properties/{propertyId}/transfer")
+    public ResponseEntity<Void> transferProperty(@PathVariable UUID agencyId, @PathVariable UUID propertyId, @RequestBody TransferRequest transferRequest, @RequestHeader("X-User-Id") UUID actingUserId) {
+        try {
+            realStateAgencyService.transferProperty(agencyId, propertyId, transferRequest.getTargetUserId(), actingUserId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     private RealStateAgencyResponse convertToResponse(RealStateAgency realStateAgency) {
         RealStateAgencyResponse response = new RealStateAgencyResponse();
 
@@ -106,7 +157,7 @@ public class RealStateAgencyController {
         response.setCnpj(realStateAgency.getCnpj());
         response.setWebsite(realStateAgency.getWebsite());
         response.setPhoneNumber(realStateAgency.getPhoneNumber());
-        
+
         return response;
     }
 }

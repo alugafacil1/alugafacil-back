@@ -1,17 +1,13 @@
 package br.edu.ufape.alugafacil.dtos.user;
 
+import java.util.List;
+
 import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
 import br.edu.ufape.alugafacil.dtos.realStateAgency.RealStateAgencyRequest;
 import br.edu.ufape.alugafacil.enums.UserType;
-import br.edu.ufape.alugafacil.models.Property;
-import br.edu.ufape.alugafacil.models.RealStateAgency;
 import br.edu.ufape.alugafacil.models.Subscription;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
-import java.util.List;
-import java.util.UUID;
 
 public record UserRequest (
         @NotBlank(message = "O nome é obrigatório")
