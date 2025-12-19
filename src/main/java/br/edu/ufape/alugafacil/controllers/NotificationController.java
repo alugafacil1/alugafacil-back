@@ -23,7 +23,7 @@ import br.edu.ufape.alugafacil.dtos.notifications.ListingNotificationResponse;
 import br.edu.ufape.alugafacil.dtos.notifications.MessageNotificationRequest;
 import br.edu.ufape.alugafacil.dtos.notifications.MessageNotificationResponse;
 import br.edu.ufape.alugafacil.dtos.notifications.NotificationResponse;
-import br.edu.ufape.alugafacil.services.NotificationService;
+import br.edu.ufape.alugafacil.services.interfaces.INotificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -33,7 +33,7 @@ import lombok.RequiredArgsConstructor;
 @CrossOrigin(origins = "*")
 public class NotificationController {
 
-    private final NotificationService notificationService;
+    private final INotificationService notificationService;
 
     @PostMapping("/listing")
     public ResponseEntity<ListingNotificationResponse> createListingNotification(@Valid @RequestBody ListingNotificationRequest request) {
