@@ -47,7 +47,7 @@ public class User {
     private String photoUrl;
     private String cpf;
     private String creciNumber;
-    private String passwordHash;
+    private String password;
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)

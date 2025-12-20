@@ -1,4 +1,4 @@
-INSERT INTO users (id, name, email, password_hash, user_type, created_at, updated_at) 
+INSERT INTO users (id, name, email, password, user_type, created_at, updated_at) 
 VALUES (
     'd2f4d3c0-5a1b-4e3f-8c2a-1b2c3d4e5f6a',
     'Usuario Teste', 

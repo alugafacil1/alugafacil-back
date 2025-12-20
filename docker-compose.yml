@@ -1,8 +1,44 @@
 services:
+  keycloak:
+    image: quay.io/keycloak/keycloak
+    container_name: alugafacil_keycloak
+    ports:
+      - "8080:8080" 
+    networks:
+      - alugafacil-networks
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      DB_VENDOR: POSTGRES
+      DB_ADDR: keycloak-db
+      DB_PORT: 5432
+      DB_DATABASE: keycloak
+      DB_USER: postgres
+      DB_SCHEMA: public
+      DB_PASSWORD: password
+    command: start-dev
+    depends_on:
+      - keycloak-db
+
+  keycloak-db:
+    image: postgres:16.0
+    container_name: keycloak_db
+    restart: always
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    networks:
+      - alugafacil-networks
+    volumes:
+      - keycloak-pg-data:/var/lib/postgresql/data
+
   db:
     image: postgres:15-alpine
     container_name: alugafacil_db
     restart: always
+    networks:
+      - alugafacil-networks
     environment:
       POSTGRES_DB: alugafacil
       POSTGRES_USER: postgres
@@ -14,3 +50,8 @@ services:
 
 volumes:
   postgres_data:
+  keycloak-pg-data:
+
+networks:
+  alugafacil-networks:
+    driver: bridge

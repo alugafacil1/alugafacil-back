@@ -10,6 +10,7 @@ import br.edu.ufape.alugafacil.mappers.UserPropertyMapper;
 import br.edu.ufape.alugafacil.models.RealStateAgency;
 import br.edu.ufape.alugafacil.models.User;
 import br.edu.ufape.alugafacil.repositories.UserRepository;
+import br.edu.ufape.alugafacil.services.interfaces.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
