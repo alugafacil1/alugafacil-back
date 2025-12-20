@@ -20,4 +20,6 @@ public interface IUserService {
     UserResponse updateUser(UUID id, UserRequest userRequest) throws UserNotFoundException, UserCpfDuplicadoException;
 
     void deleteUser(UUID id) throws UserNotFoundException;
+
+    void updateFcmToken(UUID userId, String token) throws UserNotFoundException;
 }
