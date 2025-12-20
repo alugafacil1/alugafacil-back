@@ -18,11 +18,16 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import br.edu.ufape.alugafacil.dtos.property.PropertyFilterRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyResponse;
+import br.edu.ufape.alugafacil.enums.PropertyStatus;
+import br.edu.ufape.alugafacil.enums.SubscriptionStatus;
 import br.edu.ufape.alugafacil.mappers.PropertyMapper;
+import br.edu.ufape.alugafacil.models.Plan;
 import br.edu.ufape.alugafacil.models.Property;
 import br.edu.ufape.alugafacil.models.QProperty;
-import br.edu.ufape.alugafacil.enums.PropertyStatus;
+import br.edu.ufape.alugafacil.models.User;
 import br.edu.ufape.alugafacil.repositories.PropertyRepository;
+import br.edu.ufape.alugafacil.repositories.SubscriptionRepository;
+import br.edu.ufape.alugafacil.repositories.UserRepository;
 import br.edu.ufape.alugafacil.services.interfaces.IFileStorageService;
 import br.edu.ufape.alugafacil.services.interfaces.IPropertyService;
 import jakarta.transaction.Transactional;
@@ -33,21 +38,50 @@ import lombok.RequiredArgsConstructor;
 public class PropertyService implements IPropertyService {
 	
 	private final PropertyRepository propertyRepository;
-//	private final UserRepository userRepository;
+	private final UserRepository userRepository;
 	private final PropertyMapper propertyMapper;
 	private final IFileStorageService fileStorageService;
+	private final SubscriptionRepository subscriptionRepository;
 	
-	@Override
+    private Plan getUserActivePlan(User user) {
+    	return subscriptionRepository.findFirstByUserUserIdAndStatus(user.getUserId(), SubscriptionStatus.ACTIVE)
+    			.map(subscription -> subscription.getPlan())
+    			.orElseGet(() -> {
+    				// Fallback: Cria um plano "Dummy" com regras do plano FREE se não tiver assinatura
+    				// O ideal seria buscar o plano FREE real no banco, mas para validação rápida serve:
+    				Plan freePlan = new Plan();
+    				freePlan.setPropertiesCount(1);
+    				freePlan.setImagesCount(5);
+    				freePlan.setHasVideo(false);
+    				freePlan.setIsPriority(false);
+    				return freePlan;
+    			});
+    }
+	
+	
+    @Override
 	@Transactional
 	public PropertyResponse createProperty(PropertyRequest request) {
+		 User owner = userRepository.findById(request.userId())
+		 		.orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + request.userId()));
 		
-//		 User owner = userRepository.findById(request.userId())
-//		 		.orElseThrow(() -> new RuntimeException("Usuàrio nâo encontrado com ID: " + request.userId()));
-//		
+		 Plan plan = getUserActivePlan(owner);
+		 
+		 long currentProperties = propertyRepository.countPropertiesByUser(owner.getUserId(), PropertyStatus.ACTIVE);
+		 if (currentProperties >= plan.getPropertiesCount()) {
+	        throw new RuntimeException("Upgrade necessário! Seu plano permite apenas " + plan.getPropertiesCount() + " imóveis.");
+	    }
+		 
+		 if (request.videoUrl() != null && !request.videoUrl().isEmpty() && !plan.getHasVideo()) {
+			 throw new RuntimeException("Seu plano atual não permite adicionar vídeos ao anúncio.");
+		 }
+		 
 		 Property property = propertyMapper.toEntity(request);
+		 property.setUser(owner);
 		 
-//		 property.setUser(owner);
+		 property.setIsPriority(plan.getIsPriority()); 
 		 
+		 property.setStatus(PropertyStatus.ACTIVE);
 		
 		 return propertyMapper.toResponse(propertyRepository.save(property));
 	}
@@ -134,13 +168,31 @@ public class PropertyService implements IPropertyService {
 	}
 
 	@Override
-	public PropertyResponse updateProperty(UUID id, PropertyRequest request) {
-		Property property = propertyRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Imóvel não encontrado"));
-		propertyMapper.updateEntityFromDto(request, property);
-		
-		return propertyMapper.toResponse(propertyRepository.save(property));
-	}
+    @Transactional
+    public PropertyResponse updateProperty(UUID id, PropertyRequest request) {
+        Property property = propertyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Imóvel não encontrado"));
+
+        Plan plan = getUserActivePlan(property.getUser());
+
+        if (request.videoUrl() != null && !request.videoUrl().isBlank() && !plan.getHasVideo()) {
+            throw new RuntimeException("Seu plano atual não permite adicionar vídeos.");
+        }
+
+        if (property.getStatus() != PropertyStatus.ACTIVE && request.status() == PropertyStatus.ACTIVE) {
+            long currentActive = propertyRepository.countPropertiesByUser(property.getUser().getUserId(), PropertyStatus.ACTIVE);
+            
+            if (currentActive >= plan.getPropertiesCount()) {
+                throw new RuntimeException("Você atingiu o limite de imóveis ativos do seu plano (" + plan.getPropertiesCount() + "). Não é possível ativar este imóvel.");
+            }
+        }
+
+        propertyMapper.updateEntityFromDto(request, property);
+
+        property.setIsPriority(plan.getIsPriority());
+
+        return propertyMapper.toResponse(propertyRepository.save(property));
+    }
 
 	@Override
 	public void deleteProperty(UUID id) {
@@ -156,8 +208,18 @@ public class PropertyService implements IPropertyService {
 		Property property = propertyRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Imóvel não encontrado"));
 		
+		Plan plan = getUserActivePlan(property.getUser());
+		
 		if (property.getPhotoUrls() == null) {
 			property.setPhotoUrls(new ArrayList<>());
+		}
+		
+		int currentCount = property.getPhotoUrls().size();
+		int newCount = files.size();
+		int limit = plan.getImagesCount();
+		
+		if ((currentCount + newCount) > limit) {
+			throw new RuntimeException("Limite de fotos excedido! Seu plano permite " + limit + " fotos. Você já tem " + currentCount + ".");
 		}
 		
 		for (MultipartFile file : files) {

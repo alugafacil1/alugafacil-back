@@ -2,7 +2,7 @@ package br.edu.ufape.alugafacil.controllers;
 
 import br.edu.ufape.alugafacil.dtos.PlanRequestDTO;
 import br.edu.ufape.alugafacil.dtos.PlanResponseDTO;
-import br.edu.ufape.alugafacil.enums.PlanType;
+import br.edu.ufape.alugafacil.enums.UserType;
 import br.edu.ufape.alugafacil.services.PlanService;
 import jakarta.validation.Valid;
 
@@ -35,13 +35,13 @@ public class PlanController {
 
     @GetMapping
     public ResponseEntity<List<PlanResponseDTO>> getAllPlans(
-            @RequestParam(required = false) PlanType planType,
+            @RequestParam(required = false) UserType targetAudience, 
             @RequestParam(required = false) Integer maxPrice) {
 
         List<PlanResponseDTO> response;
 
-        if (planType != null) {
-            response = planService.getPlansByType(planType);
+        if (targetAudience != null) {
+            response = planService.getPlansByTargetAudience(targetAudience);
         } else if (maxPrice != null) {
             response = planService.getPlansByMaxPrice(maxPrice);
         } else {
