@@ -23,7 +23,7 @@ public class PlanResponseDTO {
     private UserType targetAudience;
 
     public PlanResponseDTO(Plan plan) {
-
+        this.planId = plan.getPlanId();
         this.name = plan.getName();
         this.priceInCents = plan.getPriceInCents();
         this.hasVideo = plan.getHasVideo();
