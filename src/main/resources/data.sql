@@ -89,3 +89,49 @@ INSERT INTO property_photo_urls (property_id, photo_urls) VALUES
 ('a0000000-0000-0000-0000-000000000013', 'https://placehold.co/600x400/pink?text=Apto+Semi'),
 ('a0000000-0000-0000-0000-000000000014', 'https://placehold.co/600x400/lime?text=Casa+Cohab2'),
 ('a0000000-0000-0000-0000-000000000015', 'https://placehold.co/600x400/olive?text=Cobertura');
+
+-- INSERT CORRIGIDO DA TABELA PLAN
+
+INSERT INTO plan (
+    id, 
+    name, 
+    price_in_cents, 
+    properties_count, 
+    images_count, 
+    has_video, 
+    has_notification, 
+    is_priority, 
+    target_audience,  -- <--- CORREÇÃO 1: Nome da coluna atualizado
+    created_at, 
+    updated_at
+) VALUES 
+(
+    'f1111111-1111-1111-1111-111111111111', 
+    'Proprietário Grátis', 
+    0, 
+    1, 
+    5, 
+    false, false, false, 
+    'OWNER',          -- <--- CORREÇÃO 2: Valor válido do Enum UserType
+    NOW(), NOW()
+),
+(
+    'b2222222-2222-2222-2222-222222222222', 
+    'Proprietário Pro', 
+    2990, 
+    5, 
+    10, 
+    false, true, false, 
+    'OWNER', 
+    NOW(), NOW()
+),
+(
+    'e3333333-3333-3333-3333-333333333333', 
+    'Imobiliária Elite', 
+    9990, 
+    9999, 
+    20, 
+    true, true, true, 
+    'REALTOR',        -- <--- CORREÇÃO 3: Valor válido do Enum UserType
+    NOW(), NOW()
+);
