@@ -65,7 +65,7 @@ public class PropertyService implements IPropertyService {
 		QProperty qProperty = QProperty.property;
 		
 		BooleanBuilder builder = new BooleanBuilder();
-		
+	
 		if (filters != null) {
 			if (filters.getLat() != null && filters.getLon() != null && filters.getRadius() != null) {
 				NumberExpression<Double> dbLat = qProperty.geolocation.latitude;
