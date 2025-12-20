@@ -5,147 +5,109 @@ import br.edu.ufape.alugafacil.dtos.user.UserResponse;
 import br.edu.ufape.alugafacil.exceptions.UserCpfDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserEmailDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserNotFoundException;
-import br.edu.ufape.alugafacil.mappers.PropertyMapper;
 import br.edu.ufape.alugafacil.mappers.RealStateAgencyPropertyMapper;
 import br.edu.ufape.alugafacil.mappers.UserPropertyMapper;
-import br.edu.ufape.alugafacil.models.Property;
 import br.edu.ufape.alugafacil.models.RealStateAgency;
 import br.edu.ufape.alugafacil.models.User;
 import br.edu.ufape.alugafacil.repositories.UserRepository;
+import br.edu.ufape.alugafacil.services.interfaces.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements IUserService{
+public class UserService implements IUserService {
 
     private final UserRepository userRepository;
     private final UserPropertyMapper userPropertyMapper;
-    private final PropertyMapper propertyMapper;
-    private final RealStateAgencyPropertyMapper realStateAgencyPropertyMapper;
+    private final RealStateAgencyPropertyMapper agencyMapper;
+    private final SubscriptionService subscriptionService;
 
     @Override
-    public UserResponse saveUser(UserRequest userRequest) throws UserCpfDuplicadoException, UserEmailDuplicadoException {
-        try {
+    @Transactional
+    public UserResponse saveUser(UserRequest request) {
+        validateCpfDuplicate(request.cpf(), null);
+        validateEmailDuplicate(request.email(), null);
 
-            Optional<User> byCpf = this.userRepository.findUserByCpf(userRequest.cpf());
+        User user = userPropertyMapper.toEntity(request);
 
-            if (byCpf.isPresent()) {
+        if (request.agency() != null) {
+            user.setAgency(agencyMapper.toEntity(request.agency()));
+        }
+
+        User savedUser = userRepository.save(user);
+
+        subscriptionService.createInitialFreeSubscription(savedUser);
+
+        return userPropertyMapper.toResponse(savedUser);
+    }
+
+    @Override
+    @Transactional
+    public UserResponse updateUser(UUID id, UserRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+
+        validateCpfDuplicate(request.cpf(), id);
+        validateEmailDuplicate(request.email(), id);
+
+        userPropertyMapper.updateEntityFromRequest(request, user);
+
+        if (request.agency() != null) {
+            if (user.getAgency() == null) {
+                RealStateAgency newAgency = agencyMapper.toEntity(request.agency());
+                user.setAgency(newAgency);
+            } else {
+                agencyMapper.updateEntityFromRequest(request.agency(), user.getAgency());
+            }
+        }
+        
+        return userPropertyMapper.toResponse(userRepository.save(user));
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(userPropertyMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserResponse getUserById(UUID id) {
+        return userRepository.findById(id)
+                .map(userPropertyMapper::toResponse)
+                .orElseThrow(UserNotFoundException::new);
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(UUID id) {
+        if (!userRepository.existsById(id)) {
+            throw new UserNotFoundException();
+        }
+        userRepository.deleteById(id);
+    }
+
+    private void validateCpfDuplicate(String cpf, UUID userIdToIgnore) {
+        userRepository.findUserByCpf(cpf).ifPresent(existingUser -> {
+            if (userIdToIgnore == null || !existingUser.getUserId().equals(userIdToIgnore)) {
                 throw new UserCpfDuplicadoException();
             }
+        });
+    }
 
-            User userByEmail = this.userRepository.findByEmail(userRequest.email());
-
-            if (userByEmail.getUserId() != null && !userByEmail.getEmail().isEmpty()) {
+    private void validateEmailDuplicate(String email, UUID userIdToIgnore) {
+        userRepository.findByEmail(email).ifPresent(existingUser -> {
+            if (userIdToIgnore == null || !existingUser.getUserId().equals(userIdToIgnore)) {
                 throw new UserEmailDuplicadoException();
             }
-
-            User user = userPropertyMapper.toEntity(userRequest);
-
-            List<Property> properties = userRequest.properties().stream()
-                    .map(p -> {
-                        Property property = propertyMapper.toEntity(p);
-                        property.setUser(user);
-                        return property;
-                    })
-                    .toList();
-
-            user.setProperties(properties);
-
-            RealStateAgency realStateAgency = realStateAgencyPropertyMapper.toEntity(userRequest.agency());
-            user.setAgency(realStateAgency);
-
-             User save = this.userRepository.save(user);
-
-             return userPropertyMapper.toResponse(save);
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        });
     }
-
-    @Override
-    public List<UserResponse> getAllUsers() {
-
-        List<User> usuarios = this.userRepository.findAll();
-        List<UserResponse> usuariosResp = usuarios.stream()
-                .map(u -> userPropertyMapper.toResponse(u))
-                .toList();
-
-        return usuariosResp;
-    }
-
-    @Override
-    public UserResponse getUserById(UUID id) throws UserNotFoundException {
-
-        Optional<User> byId = this.userRepository.findById(id);
-
-        if (!byId.isPresent()) {
-            throw new UserNotFoundException();
-        }
-
-        return userPropertyMapper.toResponse(byId.get());
-
-    }
-
-    @Override
-    public UserResponse updateUser(UUID id, UserRequest userRequest) throws UserNotFoundException , UserCpfDuplicadoException,  UserEmailDuplicadoException{
-
-        Optional<User> byId = userRepository.findUserByCpf(userRequest.cpf());
-
-        if (!byId.isPresent()) {
-            throw new UserNotFoundException();
-        }
-
-        User user = byId.get();
-
-        Optional<User> byCpf = this.userRepository.findUserByCpf(userRequest.cpf());
-
-        if (byCpf.isPresent() && !byCpf.get().getUserId().equals(user.getUserId())) {
-            throw new UserCpfDuplicadoException();
-        }
-
-        User userByEmail = this.userRepository.findByEmail(userRequest.email());
-
-        if (userByEmail.getUserId() != null && !userByEmail.getEmail().isEmpty() && !userByEmail.getUserId().equals(user.getUserId())) {
-            throw new UserEmailDuplicadoException();
-        }
-
-        userPropertyMapper.updateEntityFromRequest(userRequest, user);
-
-        List<Property> properties = userRequest.properties().stream()
-                .map(p -> {
-                    Property property = propertyMapper.toEntity(p);
-                    property.setUser(user);
-                    return property;
-                })
-                .toList();
-
-        user.setProperties(properties);
-
-        RealStateAgency realStateAgency = realStateAgencyPropertyMapper.toEntity(userRequest.agency());
-        user.setAgency(realStateAgency);
-
-        User save = userRepository.save(user);
-
-        return userPropertyMapper.toResponse(save);
-    }
-
-    @Override
-    public void deleteUser(UUID id) throws UserNotFoundException {
-
-        Optional<User> byId = userRepository.findById(id);
-
-        if (!byId.isPresent()) {
-            throw new UserNotFoundException();
-        }
-
-        this.userRepository.delete(byId.get());
-    }
-
-
 }

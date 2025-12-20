@@ -1,4 +1,4 @@
-package br.edu.ufape.alugafacil.services;
+package br.edu.ufape.alugafacil.services.interfaces;
 
 import java.util.List;
 import java.util.UUID;

@@ -4,9 +4,12 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
+import br.edu.ufape.alugafacil.enums.PropertyStatus;
 import br.edu.ufape.alugafacil.models.Property;
 
 
@@ -15,4 +18,6 @@ public interface PropertyRepository extends
 		JpaRepository<Property, UUID>,
 		QuerydslPredicateExecutor<Property> {
 	List<Property> findByUserUserId(UUID userId);
+	@Query("SELECT COUNT(p) FROM Property p WHERE p.user.userId = :userId AND p.status = :status")
+	long countPropertiesByUser(@Param("userId") UUID userId, @Param("status") PropertyStatus status);
 }

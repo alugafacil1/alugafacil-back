@@ -12,10 +12,16 @@ import br.edu.ufape.alugafacil.models.RealStateAgency;
 public interface RealStateAgencyPropertyMapper {
 
     @Mapping(target = "agencyId", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     RealStateAgency toEntity(RealStateAgencyRequest request);
 
     RealStateAgencyResponse toResponse(RealStateAgency realStateAgency);
 
     @Mapping(target = "agencyId", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "createdAt", ignore = true) 
+    @Mapping(target = "updatedAt", ignore = true) 
     void updateEntityFromRequest(RealStateAgencyRequest request, @MappingTarget RealStateAgency realStateAgency);
 }

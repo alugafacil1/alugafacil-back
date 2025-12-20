@@ -19,7 +19,7 @@ public record UserRequest (
         String cpf,
         String creciNumber,
         @NotBlank(message = "O senha é obrigatória")
-        String passwordHash,
+        String password,
         @NotBlank(message = "O telefone é obrigatória")
         String phoneNumber,
         @NotNull(message = "É obrigatório selecionar o tipo de usuário ")

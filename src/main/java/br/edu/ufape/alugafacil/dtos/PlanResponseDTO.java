@@ -2,8 +2,8 @@ package br.edu.ufape.alugafacil.dtos;
 
 import java.util.UUID;
 
+import br.edu.ufape.alugafacil.enums.UserType;
 import br.edu.ufape.alugafacil.models.Plan;
-import br.edu.ufape.alugafacil.enums.PlanType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,7 +20,7 @@ public class PlanResponseDTO {
     private Integer propertiesCount;
     private Boolean isPriority;
     private Boolean hasNotification;
-    private PlanType planType;
+    private UserType targetAudience;
 
     public PlanResponseDTO(Plan plan) {
 
@@ -31,6 +31,6 @@ public class PlanResponseDTO {
         this.propertiesCount = plan.getPropertiesCount();
         this.isPriority = plan.getIsPriority();
         this.hasNotification = plan.getHasNotification();
-        this.planType = plan.getPlanType();
+        this.targetAudience = plan.getTargetAudience();
     }
 }
