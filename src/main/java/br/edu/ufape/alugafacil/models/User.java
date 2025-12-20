@@ -50,6 +50,9 @@ public class User {
     private String password;
     private String phoneNumber;
 
+    @Column(name = "fcm_token")
+    private String fcmToken;
+
     @Enumerated(EnumType.STRING)
     private UserType userType;
 

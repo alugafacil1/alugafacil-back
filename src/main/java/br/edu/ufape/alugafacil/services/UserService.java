@@ -2,6 +2,7 @@ package br.edu.ufape.alugafacil.services;
 
 import br.edu.ufape.alugafacil.dtos.user.UserRequest;
 import br.edu.ufape.alugafacil.dtos.user.UserResponse;
+import br.edu.ufape.alugafacil.exceptions.ResourceNotFoundException;
 import br.edu.ufape.alugafacil.exceptions.UserCpfDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserEmailDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserNotFoundException;
@@ -110,4 +111,15 @@ public class UserService implements IUserService {
             }
         });
     }
+
+    @Override
+    @Transactional
+    public void updateFcmToken(UUID userId, String token) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + userId));
+        
+        user.setFcmToken(token);
+        userRepository.save(user);
+    }
 }
+

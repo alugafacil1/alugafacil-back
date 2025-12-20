@@ -24,6 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserPreferenceService implements IUserPreferenceService {
 
+
     private final UserSearchPreferenceRepository userSearchPreferenceRepository;
     private final UserSearchPreferenceMapper userSearchPreferenceMapper;
     private final UserPropertyMapper userPropertyMapper;
