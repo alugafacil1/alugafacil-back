@@ -15,7 +15,7 @@ public record UserResponse  (
         String photoUrl,
         String cpf,
         String creciNumber,
-        String passwordHash,
+        String password,
         String phoneNumber,
         UserType userType,
         RealStateAgency agency,
