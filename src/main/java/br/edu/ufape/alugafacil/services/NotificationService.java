@@ -38,7 +38,7 @@ public class NotificationService implements INotificationService {
     private final FCMService fcmService;
     private final UserRepository userRepository;
     
-    // --- NOVAS INJEÇÕES PARA VALIDAÇÃO ---
+    
     private final PropertyRepository propertyRepository;
     private final ConversationRepository conversationRepository; 
 

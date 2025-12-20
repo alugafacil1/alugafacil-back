@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import br.edu.ufape.alugafacil.enums.PropertyStatus;
 import br.edu.ufape.alugafacil.enums.PropertyType;
@@ -13,6 +14,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
@@ -20,10 +22,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@EntityListeners(AuditingEntityListener.class)
+@AllArgsConstructor
+@NoArgsConstructor
 public class Property {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -49,6 +56,7 @@ public class Property {
     private Boolean petFriendly;
     private Boolean garage;
     private Boolean isOwner;
+    private Boolean isPriority;
     
     private String videoUrl;
     private String phoneNumber;

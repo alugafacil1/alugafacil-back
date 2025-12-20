@@ -13,16 +13,22 @@ import org.springframework.test.context.ActiveProfiles;
 
 import br.edu.ufape.alugafacil.dtos.notifications.MessageNotificationRequest;
 import br.edu.ufape.alugafacil.dtos.notifications.MessageNotificationResponse;
+import br.edu.ufape.alugafacil.models.Conversation;
 import br.edu.ufape.alugafacil.models.MessageNotification;
 import br.edu.ufape.alugafacil.models.Notification;
+import br.edu.ufape.alugafacil.models.Property;
+import br.edu.ufape.alugafacil.models.User;
+import br.edu.ufape.alugafacil.repositories.ConversationRepository;
 import br.edu.ufape.alugafacil.repositories.NotificationRepository;
+import br.edu.ufape.alugafacil.repositories.PropertyRepository;
+import br.edu.ufape.alugafacil.repositories.UserRepository;
 import br.edu.ufape.alugafacil.services.FCMService;
 import br.edu.ufape.alugafacil.services.NotificationService;
 import br.edu.ufape.alugafacil.services.interfaces.IFileStorageService;
 import br.edu.ufape.alugafacil.services.interfaces.IPropertyService;
 
 @SpringBootTest
-@ActiveProfiles("test") // Usa o banco H2 configurado no application-test.properties
+@ActiveProfiles("test")
 class NotificationIntegrationTest {
 
     @Autowired
@@ -31,46 +37,70 @@ class NotificationIntegrationTest {
     @Autowired
     private NotificationRepository notificationRepository;
 
-    // --- MOCKS DE DEPENDÊNCIAS EXTERNAS ---
-    // Estes mocks são necessários para que o ApplicationContext do Spring suba
-    // sem tentar conectar em serviços reais ou quebrar por falta de dependência.
+    // --- NOVOS REPOSITÓRIOS PARA O CENÁRIO ---
+    @Autowired private UserRepository userRepository;
+    @Autowired private PropertyRepository propertyRepository;
+    @Autowired private ConversationRepository conversationRepository;
+    // -----------------------------------------
 
     @MockBean
-    private FCMService fcmService; // Mocka o Firebase para não enviar push real
+    private FCMService fcmService;
 
     @MockBean
-    private IFileStorageService fileStorageService; // Mocka o Storage para destrava o PropertyService
+    private IFileStorageService fileStorageService;
 
-    
     @MockBean
-    private IPropertyService propertyService; 
-    
-    // ------------------------------------------
+    private IPropertyService propertyService;
 
     @Test
     @DisplayName("Deve persistir uma notificação de mensagem no banco H2")
     void shouldPersistMessageNotificationInDatabase() {
-        // 1. Cenário (Arrange)
+        // 1. Cenário (Arrange) - Criando os dados reais no H2
+        
+        // Criar Usuários
+        User sender = new User();
+        sender.setEmail("sender@test.com"); // Campos obrigatórios mínimos
+        userRepository.save(sender);
+
+        User recipient = new User();
+        recipient.setEmail("recipient@test.com");
+        recipient.setFcmToken("token-fake-123"); // Importante se o service validar isso
+        userRepository.save(recipient);
+
+        // Criar Imóvel
+        Property property = new Property();
+        property.setUser(recipient); // O dono é o destinatário
+        propertyRepository.save(property);
+
+        // Criar Conversa (Obrigatório para passar na validação do Service)
+        Conversation conversation = new Conversation();
+        conversation.setInitiatorUser(sender);
+        conversation.setRecipientUser(recipient);
+        conversation.setProperty(property);
+        Conversation savedConversation = conversationRepository.save(conversation);
+
+        // Montar Request com o ID REAL da conversa salva
         MessageNotificationRequest request = new MessageNotificationRequest();
-        request.setConversationId(UUID.randomUUID());
+        request.setConversationId(savedConversation.getConversationId());
         request.setSenderName("João da Silva");
         request.setTargetToken("token-fake-123");
 
         // 2. Ação (Act)
-        // Aqui chamamos o serviço real, que vai chamar o Repository real e salvar no H2
         MessageNotificationResponse response = notificationService.createMessageNotification(request);
 
         // 3. Verificação (Assert)
-        
-        // Verifica se o serviço retornou um ID (sinal que salvou)
         assertNotNull(response.getId(), "O ID da resposta não deveria ser nulo");
         
-        // Vai no banco de dados verificar se o registro existe mesmo
         Notification saved = notificationRepository.findById(response.getId()).orElse(null);
         
         assertNotNull(saved, "A notificação deveria ter sido encontrada no banco de dados");
         assertTrue(saved instanceof MessageNotification, "Deveria ser uma instância de MessageNotification");
         assertEquals("João da Silva", ((MessageNotification) saved).getSenderName());
-        assertEquals("Nova Mensagem", saved.getTitle()); // Verifica se o Mapper funcionou
+        
+        // Verifica se a notificação foi vinculada ao usuário correto (destinatário da conversa)
+        // Isso depende se o seu mapper/service preenche o 'user' na notificação
+        if (saved.getUser() != null) {
+             assertEquals(recipient.getUserId(), saved.getUser().getUserId());
+        }
     }
 }

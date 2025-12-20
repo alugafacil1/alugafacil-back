@@ -1,11 +1,7 @@
 package br.edu.ufape.alugafacil.exceptions;
 
-public class UserCpfDuplicadoException extends Exception{
+public class UserCpfDuplicadoException extends RuntimeException {
     public UserCpfDuplicadoException() {
-        super("Já existe um usuário com este cpf.");
-    }
-
-    public UserCpfDuplicadoException(String message) {
-        super(message);
+        super("CPF já cadastrado no sistema.");
     }
 }
