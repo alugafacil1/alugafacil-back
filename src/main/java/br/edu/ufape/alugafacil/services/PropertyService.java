@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,9 +22,12 @@ import br.edu.ufape.alugafacil.dtos.property.PropertyResponse;
 import br.edu.ufape.alugafacil.mappers.PropertyMapper;
 import br.edu.ufape.alugafacil.models.Property;
 import br.edu.ufape.alugafacil.models.QProperty;
+import br.edu.ufape.alugafacil.models.UserSearchPreference;
 import br.edu.ufape.alugafacil.enums.PropertyStatus;
 import br.edu.ufape.alugafacil.repositories.PropertyRepository;
+import br.edu.ufape.alugafacil.repositories.UserSearchPreferenceRepository;
 import br.edu.ufape.alugafacil.services.interfaces.IFileStorageService;
+import br.edu.ufape.alugafacil.services.interfaces.INotificationService;
 import br.edu.ufape.alugafacil.services.interfaces.IPropertyService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +40,9 @@ public class PropertyService implements IPropertyService {
 //	private final UserRepository userRepository;
 	private final PropertyMapper propertyMapper;
 	private final IFileStorageService fileStorageService;
-	
+	private final UserSearchPreferenceRepository preferenceRepository;
+    private final INotificationService notificationService;
+
 	@Override
 	@Transactional
 	public PropertyResponse createProperty(PropertyRequest request) {
@@ -44,13 +50,57 @@ public class PropertyService implements IPropertyService {
 //		 User owner = userRepository.findById(request.userId())
 //		 		.orElseThrow(() -> new RuntimeException("Usuàrio nâo encontrado com ID: " + request.userId()));
 //		
-		 Property property = propertyMapper.toEntity(request);
+		Property property = propertyMapper.toEntity(request);
 		 
 //		 property.setUser(owner);
-		 
-		
-		 return propertyMapper.toResponse(propertyRepository.save(property));
+		Property savedProperty = propertyRepository.save(property);
+		notifyInterestedUsers(savedProperty);
+		return propertyMapper.toResponse(savedProperty);
 	}
+
+	/**
+     * Busca usuários interessados e dispara notificação.
+     * Rodando em @Async para não bloquear a resposta da API.
+     */
+    @Async 
+    protected void notifyInterestedUsers(Property property) {
+        // 1. Preparar dados (Null checks para evitar NullPointerException na query)
+        Integer garageCount = (property.getGarage() != null && property.getGarage()) ? 1 : 0;
+        
+        Double lat = (property.getGeolocation() != null) ? property.getGeolocation().getLatitude() : null;
+        Double lon = (property.getGeolocation() != null) ? property.getGeolocation().getLongitude() : null;
+        
+        String city = (property.getAddress() != null) ? property.getAddress().getCity() : null;
+        String neighborhood = (property.getAddress() != null) ? property.getAddress().getNeighborhood() : null;
+
+        // 2. Buscar Matches no Banco
+        List<UserSearchPreference> matches = preferenceRepository.findMatchingPreferences(
+            property.getPriceInCents(),
+            property.getNumberOfBedrooms(),
+            property.getNumberOfBathrooms(),
+            garageCount,
+            property.getFurnished(),
+            property.getPetFriendly(),
+            city,
+            neighborhood,
+            lat,
+            lon
+        );
+
+        // 3. Notificar cada usuário
+        for (UserSearchPreference preference : matches) {
+            // Pula se o interessado for o próprio dono
+            if (property.getUser() != null && preference.getUser().getUserId().equals(property.getUser().getUserId())) {
+                continue;
+            }
+
+            notificationService.notifyListingMatch(
+                preference.getUser().getUserId(),
+                property.getPropertyId(),
+                preference.getName()
+            );
+        }
+    }
 
 	@Override
 	public PropertyResponse getPropertyById(UUID id) {
