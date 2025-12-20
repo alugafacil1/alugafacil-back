@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +25,7 @@ import br.edu.ufape.alugafacil.services.interfaces.INotificationService;
 
 @WebMvcTest(NotificationController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 class NotificationControllerTest {
 
     @Autowired
@@ -37,7 +39,6 @@ class NotificationControllerTest {
 
     @Test
     void shouldReturn201WhenCreatingListingNotification() throws Exception {
-        // Arrange
         ListingNotificationRequest request = new ListingNotificationRequest();
         request.setPropertyId(UUID.randomUUID());
         request.setAlertName("Teste Alerta");
@@ -49,7 +50,6 @@ class NotificationControllerTest {
 
         when(notificationService.createListingNotification(any())).thenReturn(response);
 
-        // Act & Assert
         mockMvc.perform(post("/api/notifications/listing")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
@@ -60,13 +60,11 @@ class NotificationControllerTest {
     
     @Test
     void shouldReturn400WhenRequestIsInvalid() throws Exception {
-        // Arrange: Request vazio (sem alertName que é @NotBlank)
         ListingNotificationRequest request = new ListingNotificationRequest();
 
-        // Act & Assert
         mockMvc.perform(post("/api/notifications/listing")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().is(422)); // Espera erro de validação
+                .andExpect(status().is(422));
     }
 }
