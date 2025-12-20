@@ -1,18 +1,20 @@
 package br.edu.ufape.alugafacil.repositories;
 
 import br.edu.ufape.alugafacil.models.Plan;
-import br.edu.ufape.alugafacil.enums.PlanType;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+
+import br.edu.ufape.alugafacil.enums.UserType;
 
 @Repository
 public interface PlanRepository extends JpaRepository<Plan, UUID> {
-    List<Plan> findByPlanType(PlanType planType);
-
+    List<Plan> findByTargetAudience(UserType targetAudience);
     List<Plan> findByPriceInCentsLessThanEqual(Integer maxPrice);
-
     boolean existsByName(String name);
+    Optional<Plan> findFirstByPriceInCentsAndTargetAudience(Integer price, UserType targetAudience);
 }
