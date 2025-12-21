@@ -1,6 +1,6 @@
 package br.edu.ufape.alugafacil.dtos;
 
-import br.edu.ufape.alugafacil.enums.PlanType;
+import br.edu.ufape.alugafacil.enums.UserType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -37,6 +37,6 @@ public class PlanRequestDTO {
     @NotNull(message = "O campo hasNotification é obrigatório")
     private Boolean hasNotification;
 
-    @NotNull(message = "O tipo de plano é obrigatório")
-    private PlanType planType;
+    @NotNull(message = "O público alvo (targetAudience) é obrigatório")
+    private UserType targetAudience;
 }

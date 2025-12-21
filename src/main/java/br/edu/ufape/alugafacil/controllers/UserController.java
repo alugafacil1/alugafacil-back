@@ -1,6 +1,7 @@
 package br.edu.ufape.alugafacil.controllers;
 
 
+import br.edu.ufape.alugafacil.dtos.notifications.FcmTokenRequest;
 import br.edu.ufape.alugafacil.dtos.user.UserRequest;
 import br.edu.ufape.alugafacil.dtos.user.UserResponse;
 import br.edu.ufape.alugafacil.exceptions.UserCpfDuplicadoException;
@@ -72,5 +73,15 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/fcm-token")
+    public ResponseEntity<?> updateFcmToken(@PathVariable UUID id, @RequestBody FcmTokenRequest request) {
+        try {
+            userService.updateFcmToken(id, request.getToken());
+            return ResponseEntity.noContent().build();
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

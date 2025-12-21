@@ -10,6 +10,9 @@ import lombok.Data;
 public class ListingNotificationRequest {
     @NotNull(message = "O ID do imóvel é obrigatório")
     private UUID propertyId;
+    
     @NotBlank(message = "O nome do alerta é obrigatório")
     private String alertName;
+
+    private String targetToken;
 }

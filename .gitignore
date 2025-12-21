@@ -57,3 +57,5 @@ Thumbs.db
 *.swo
 tmp/
 .factorypath
+
+src/main/resources/serviceAccountKey.json

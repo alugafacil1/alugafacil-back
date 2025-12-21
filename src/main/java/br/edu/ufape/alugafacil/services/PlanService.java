@@ -6,8 +6,9 @@ import br.edu.ufape.alugafacil.exceptions.DuplicatePlanNameException;
 import br.edu.ufape.alugafacil.exceptions.InvalidPlanTypeException;
 import br.edu.ufape.alugafacil.exceptions.PlanNotFoundException;
 import br.edu.ufape.alugafacil.models.Plan;
-import br.edu.ufape.alugafacil.enums.PlanType;
+import br.edu.ufape.alugafacil.enums.UserType;
 import br.edu.ufape.alugafacil.repositories.PlanRepository;
+import br.edu.ufape.alugafacil.repositories.SubscriptionRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,11 +23,13 @@ public class PlanService {
 
     @Autowired
     private PlanRepository planRepository;
+    @Autowired
+    private SubscriptionRepository subscriptionRepository;
 
     @Transactional
     public PlanResponseDTO createPlan(PlanRequestDTO planRequestDTO) {
    
-        validatePlanType(planRequestDTO.getPlanType());
+        validateTargetAudience(planRequestDTO.getTargetAudience());
 
         if (planRepository.existsByName(planRequestDTO.getName())) {
             throw new DuplicatePlanNameException(planRequestDTO.getName());
@@ -40,7 +43,8 @@ public class PlanService {
         plan.setPropertiesCount(planRequestDTO.getPropertiesCount());
         plan.setIsPriority(planRequestDTO.getIsPriority());
         plan.setHasNotification(planRequestDTO.getHasNotification());
-        plan.setPlanType(planRequestDTO.getPlanType());
+        
+        plan.setTargetAudience(planRequestDTO.getTargetAudience());
 
         Plan savedPlan = planRepository.save(plan);
         return new PlanResponseDTO(savedPlan);
@@ -61,8 +65,8 @@ public class PlanService {
     }
 
     @Transactional(readOnly = true)
-    public List<PlanResponseDTO> getPlansByType(PlanType planType) {
-        return planRepository.findByPlanType(planType).stream()
+    public List<PlanResponseDTO> getPlansByTargetAudience(UserType targetAudience) {
+        return planRepository.findByTargetAudience(targetAudience).stream()
                 .map(PlanResponseDTO::new)
                 .collect(Collectors.toList());
     }
@@ -76,11 +80,11 @@ public class PlanService {
 
     @Transactional
     public PlanResponseDTO updatePlan(UUID planId, PlanRequestDTO planRequestDTO) {
-       
+        
         Plan plan = planRepository.findById(planId)
                 .orElseThrow(() -> new PlanNotFoundException(planId));
 
-        validatePlanType(planRequestDTO.getPlanType());
+        validateTargetAudience(planRequestDTO.getTargetAudience());
 
         if (!plan.getName().equals(planRequestDTO.getName())
                 && planRepository.existsByName(planRequestDTO.getName())) {
@@ -94,7 +98,8 @@ public class PlanService {
         plan.setPropertiesCount(planRequestDTO.getPropertiesCount());
         plan.setIsPriority(planRequestDTO.getIsPriority());
         plan.setHasNotification(planRequestDTO.getHasNotification());
-        plan.setPlanType(planRequestDTO.getPlanType());
+        
+        plan.setTargetAudience(planRequestDTO.getTargetAudience());
 
         Plan updatedPlan = planRepository.save(plan);
         return new PlanResponseDTO(updatedPlan);
@@ -108,28 +113,9 @@ public class PlanService {
         planRepository.deleteById(planId);
     }
 
-    /**
-     * Valida se o tipo de plano é válido
-     * 
-     * @param planType o tipo de plano a ser validado
-     * @throws InvalidPlanTypeException se o tipo for null ou inválido
-     */
-    private void validatePlanType(PlanType planType) {
-        if (planType == null) {
+    private void validateTargetAudience(UserType targetAudience) {
+        if (targetAudience == null) {
             throw new InvalidPlanTypeException();
-        }
-
-        // Verificar se o valor do enum é válido
-        boolean isValid = false;
-        for (PlanType validType : PlanType.values()) {
-            if (validType.equals(planType)) {
-                isValid = true;
-                break;
-            }
-        }
-
-        if (!isValid) {
-            throw new InvalidPlanTypeException(planType.toString());
         }
     }
 }
