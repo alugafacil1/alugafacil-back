@@ -63,7 +63,7 @@ public class Property {
     private PropertyType type;
 
     @ManyToOne
-    @JoinColumn(name = "user_id") // Dono do imóvel
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @CreatedDate
