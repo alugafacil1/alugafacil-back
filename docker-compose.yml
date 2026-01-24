@@ -1,6 +1,35 @@
 services:
+  backend:
+    image: alugafacil-backend
+    build: .
+    container_name: alugafacil_backend
+    ports:
+      - "8081:8081"
+    networks:
+      - alugafacil-networks
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/alugafacil
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/alugafacil
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/alugafacil/protocol/openid-connect/certs
+      
+      KEYCLOAK_AUTH_SERVER_URL: http://keycloak:8080
+      KEYCLOAK_REALM: alugafacil
+      KEYCLOAK_RESOURCE: alugafacil-backend
+      KEYCLOAK_CREDENTIALS_SECRET: 0otAfyfxwy2BGLlr2xomdn3fjKFzTdJL
+      KEYCLOAK_ADMIN_USERNAME: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    depends_on:
+      - db
+      - keycloak
+    volumes:
+      - alugafacil-uploads:/app/uploads
+
   keycloak:
-    image: quay.io/keycloak/keycloak
+    image: quay.io/keycloak/keycloak:25.0.5
     container_name: alugafacil_keycloak
     ports:
       - "8080:8080" 
@@ -51,6 +80,7 @@ services:
 volumes:
   postgres_data:
   keycloak-pg-data:
+  alugafacil-uploads:
 
 networks:
   alugafacil-networks:
