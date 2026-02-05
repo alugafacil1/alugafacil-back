@@ -22,4 +22,6 @@ public interface IUserService {
     void deleteUser(UUID id) throws UserNotFoundException;
 
     void updateFcmToken(UUID userId, String token) throws UserNotFoundException;
+
+    UserResponse getUserByEmail(String email);
 }

@@ -121,5 +121,13 @@ public class UserService implements IUserService {
         user.setFcmToken(token);
         userRepository.save(user);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserResponse getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(userPropertyMapper::toResponse)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com o email: " + email));
+    }
 }
 

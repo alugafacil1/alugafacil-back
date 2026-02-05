@@ -138,53 +138,47 @@ public class KeycloakService implements IKeycloakService {
     }
 
     @Override
-    public void createUser(String username, String email, String password, UserType userType) throws KeycloakAuthenticationException {
-        // 1. Extrai o nome da role do Enum
+    public void createUser(String fullName, String email, String password, UserType userType) throws KeycloakAuthenticationException {
         String role = userType.name(); 
+        String firstName = fullName;
+        String lastName = "."; 
+
+        if (fullName != null && fullName.contains(" ")) {
+            int lastSpaceIndex = fullName.lastIndexOf(" ");
+            firstName = fullName.substring(0, lastSpaceIndex);
+            lastName = fullName.substring(lastSpaceIndex + 1);
+        }
 
         try {
             log.info("Tentando criar usuário: {} com role: {}", email, role);
 
-            // --- PREPARAÇÃO DA SENHA (CREDENTIAL) ---
             CredentialRepresentation credential = new CredentialRepresentation();
-            credential.setTemporary(false); // Importante: False para não pedir troca no login
+            credential.setTemporary(false);
             credential.setType(CredentialRepresentation.PASSWORD);
             credential.setValue(password);
 
-            // --- DEFINIÇÃO DO USUÁRIO ---
             UserRepresentation user = new UserRepresentation();
-            user.setUsername(email); // Username igual ao email
+            user.setUsername(email);
             user.setEmail(email);
-            user.setFirstName(username);
-            
-            // CORREÇÃO DO LAST NAME: Passar null se não tiver
-            user.setLastName(null); 
-            
+            user.setFirstName(firstName);
+            user.setLastName(lastName); 
             user.setEnabled(true);
-            user.setEmailVerified(true); // Força email verificado
+            user.setEmailVerified(true);
             
-            // CORREÇÃO PRINCIPAL: Envia a senha JUNTO com a criação
             user.setCredentials(Collections.singletonList(credential));
-            
-            // Garante que não haja ações requeridas (como verificar email ou mudar senha)
             user.setRequiredActions(Collections.emptyList());
 
-            // --- CHAMADA AO KEYCLOAK ---
             Response response = keycloak.realm(realm).users().create(user);
 
             if (response.getStatus() != 201) {
                 if (response.getStatus() == 409) {
                     throw new KeycloakAuthenticationException("Usuário ou Email já cadastrado.");
                 }
-                // Se der erro, loga o corpo da resposta para sabermos o motivo real
                 String errorBody = response.readEntity(String.class);
                 log.error("Erro criando usuário no Keycloak. Status: {} | Body: {}", response.getStatus(), errorBody);
                 throw new KeycloakAuthenticationException("Erro ao criar usuário: " + response.getStatus());
             }
 
-            // --- ATRIBUIÇÃO DE ROLE ---
-            // Precisamos do ID para adicionar a role. 
-            // Como acabamos de criar, buscamos pelo email.
             String userId = getUserId(email);
             
             try {
