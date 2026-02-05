@@ -11,7 +11,7 @@ public interface IKeycloakService {
 
     TokenResponse login(String email, String password) throws KeycloakAuthenticationException;
     TokenResponse refreshToken(String refreshToken);
-    void createUser(String username, String email, String password, UserType userType) throws KeycloakAuthenticationException;
+    void createUser(String fullName, String email, String password, UserType userType) throws KeycloakAuthenticationException;
     void updateUser(String userId, String email);
     void deleteUser(String userId);
     String getUserId(String username);
