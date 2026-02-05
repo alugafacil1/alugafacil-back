@@ -10,11 +10,19 @@ import br.edu.ufape.alugafacil.exceptions.UserNotFoundException;
 import br.edu.ufape.alugafacil.models.User;
 import br.edu.ufape.alugafacil.services.interfaces.IUserService;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,12 +47,60 @@ public class UserController {
         }
     }
 
-
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
+        String email = jwt.getClaimAsString("email");
+        
+        if (email == null) {
+             return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            UserResponse userResponse = userService.getUserByEmail(email);
+            return ResponseEntity.ok(userResponse);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PatchMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> uploadPhoto(@PathVariable UUID id, @RequestParam("file") MultipartFile file) {
+        try {
+            UserResponse response = userService.uploadProfilePicture(id, file);
+            return ResponseEntity.ok(response);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.internalServerError().body("Erro ao processar imagem: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/uploads/{filename:.+}")
+    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
+        try {
+            Path file = Paths.get("uploads").resolve(filename).toAbsolutePath().normalize();
+            Resource resource = new UrlResource(file.toUri());
+
+            if (resource.exists() || resource.isReadable()) {
+                String contentType = "image/jpeg";
+                if (filename.endsWith(".png")) contentType = "image/png";
+
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(contentType))
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (MalformedURLException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable UUID id) {
@@ -86,22 +142,6 @@ public class UserController {
             return ResponseEntity.noContent().build();
         } catch (UserNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @GetMapping("/me")
-    public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
-        String email = jwt.getClaimAsString("email");
-        
-        if (email == null) {
-             return ResponseEntity.badRequest().build();
-        }
-
-        try {
-            UserResponse userResponse = userService.getUserByEmail(email);
-            return ResponseEntity.ok(userResponse);
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.notFound().build();
         }
     }
 }
