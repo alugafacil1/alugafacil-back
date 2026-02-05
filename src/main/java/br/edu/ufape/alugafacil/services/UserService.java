@@ -15,7 +15,14 @@ import br.edu.ufape.alugafacil.services.interfaces.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,6 +34,7 @@ public class UserService implements IUserService {
     private final UserPropertyMapper userPropertyMapper;
     private final RealStateAgencyPropertyMapper agencyMapper;
     private final SubscriptionService subscriptionService;
+    private final Path fileStorageLocation = Paths.get("uploads").toAbsolutePath().normalize();
 
     @Override
     @Transactional
@@ -128,6 +136,43 @@ public class UserService implements IUserService {
         return userRepository.findByEmail(email)
                 .map(userPropertyMapper::toResponse)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com o email: " + email));
+    }
+
+    @Override
+    @Transactional
+    public UserResponse uploadProfilePicture(UUID id, MultipartFile file) {
+        User user = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+
+        try {
+            if (!Files.exists(fileStorageLocation)) {
+                Files.createDirectories(fileStorageLocation);
+            }
+
+            String extension = getFileExtension(file.getOriginalFilename());
+            String fileName = id.toString() + "." + extension;
+            Path targetLocation = fileStorageLocation.resolve(fileName);
+
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+
+            String fileUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/api/users/uploads/")
+                    .path(fileName)
+                    .toUriString();
+
+            user.setPhotoUrl(fileUrl);
+            return userPropertyMapper.toResponse(userRepository.save(user));
+
+        } catch (IOException ex) {
+            throw new RuntimeException("Erro ao salvar arquivo " + file.getOriginalFilename(), ex);
+        }
+    }
+
+    private String getFileExtension(String fileName) {
+        if (fileName == null || !fileName.contains(".")) {
+            return "jpg";
+        }
+        return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 }
 

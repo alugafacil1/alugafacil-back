@@ -3,6 +3,8 @@ package br.edu.ufape.alugafacil.services.interfaces;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import br.edu.ufape.alugafacil.dtos.user.UserRequest;
 import br.edu.ufape.alugafacil.dtos.user.UserResponse;
 import br.edu.ufape.alugafacil.exceptions.UserCpfDuplicadoException;
@@ -24,4 +26,6 @@ public interface IUserService {
     void updateFcmToken(UUID userId, String token) throws UserNotFoundException;
 
     UserResponse getUserByEmail(String email);
+
+    UserResponse uploadProfilePicture(UUID id, MultipartFile file);
 }
