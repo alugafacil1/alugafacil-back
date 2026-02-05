@@ -90,15 +90,18 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<User> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
         String email = jwt.getClaimAsString("email");
-
-        Optional<User> userOptional = userRepository.findByEmail(email);
-
-        if (userOptional.isPresent()) {
-            return ResponseEntity.ok(userOptional.get());
-        }
         
-        return ResponseEntity.notFound().build();
+        if (email == null) {
+             return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            UserResponse userResponse = userService.getUserByEmail(email);
+            return ResponseEntity.ok(userResponse);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
