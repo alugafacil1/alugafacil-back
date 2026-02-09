@@ -18,7 +18,7 @@ public record UserResponse  (
         String password,
         String phoneNumber,
         UserType userType,
-        RealStateAgency agency,
-        List<Property> properties,
-        List<Subscription> subscriptions
+        RealStateAgency agency
+        // List<Property> properties,
+        // List<Subscription> subscriptions
 ){}
