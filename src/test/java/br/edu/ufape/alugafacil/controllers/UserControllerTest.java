@@ -68,9 +68,7 @@ class UserControllerTest {
                 "senha123",
                 "81999999999",
                 UserType.TENANT,
-                null,
-                List.of(),
-                List.of()
+                null
         );
 
         when(userService.saveUser(any())).thenReturn(response);
@@ -98,9 +96,7 @@ class UserControllerTest {
                 "senha123",
                 "81999999999",
                 UserType.TENANT,
-                null,
-                List.of(),
-                List.of()
+                null
         );
 
 
@@ -126,9 +122,7 @@ class UserControllerTest {
                 "senha123",
                 "81999999999",
                 UserType.TENANT,
-                null,
-                List.of(),
-                List.of()
+                null
         );
 
 
@@ -170,9 +164,7 @@ class UserControllerTest {
                 "senha12343",
                 "81999999999",
                 UserType.TENANT,
-                null,
-                List.of(),
-                List.of()
+                null
         );
 
         when(userService.updateUser(eq(id), any())).thenReturn(response);

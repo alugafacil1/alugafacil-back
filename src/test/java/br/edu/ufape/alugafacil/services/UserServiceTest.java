@@ -87,9 +87,7 @@ class UserServiceTest {
                 "senha123",
                 "81999999999",
                 UserType.TENANT,
-                null,
-                List.of(),
-                List.of()
+                null
         );
     }
 
