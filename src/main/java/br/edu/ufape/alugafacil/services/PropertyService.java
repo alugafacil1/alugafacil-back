@@ -19,8 +19,9 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import br.edu.ufape.alugafacil.dtos.property.PropertyFilterRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyResponse;
+import br.edu.ufape.alugafacil.enums.PaymentStatus;
 import br.edu.ufape.alugafacil.enums.PropertyStatus;
-import br.edu.ufape.alugafacil.enums.SubscriptionStatus;
+
 import br.edu.ufape.alugafacil.mappers.PropertyMapper;
 import br.edu.ufape.alugafacil.models.Plan;
 import br.edu.ufape.alugafacil.models.Property;
@@ -55,7 +56,7 @@ public class PropertyService implements IPropertyService {
     
     // Método auxiliar para pegar plano
     private Plan getUserActivePlan(User user) {
-        return subscriptionRepository.findFirstByUserUserIdAndStatus(user.getUserId(), SubscriptionStatus.ACTIVE)
+        return subscriptionRepository.findFirstByUserUserIdAndStatus(user.getUserId(), PaymentStatus.ACTIVE)
                 .map(subscription -> subscription.getPlan())
                 .orElseGet(() -> {
                     // Fallback: Plano Free Padrão (Idealmente viria do banco)

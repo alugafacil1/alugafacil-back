@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import br.edu.ufape.alugafacil.dtos.subscription.SubscriptionRequestDTO;
 import br.edu.ufape.alugafacil.dtos.subscription.SubscriptionResponseDTO;
 import br.edu.ufape.alugafacil.enums.PaymentStatus;
-import br.edu.ufape.alugafacil.enums.SubscriptionStatus;
 import br.edu.ufape.alugafacil.mappers.SubscriptionMapper;
 import br.edu.ufape.alugafacil.models.Plan;
 import br.edu.ufape.alugafacil.models.Subscription;
@@ -40,7 +39,7 @@ public class SubscriptionService implements ISubscriptionService {
             throw new RuntimeException("Este plano não está disponível para o seu tipo de perfil (" + user.getUserType() + ")");
         }
 
-        var activeSub = subscriptionRepository.findFirstByUserUserIdAndStatus(userId, SubscriptionStatus.ACTIVE);
+        var activeSub = subscriptionRepository.findFirstByUserUserIdAndStatus(userId, PaymentStatus.ACTIVE);
 
         if (activeSub.isPresent()) {
             Subscription oldSub = activeSub.get();

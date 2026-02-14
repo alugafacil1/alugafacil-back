@@ -1,0 +1,29 @@
+{
+  "realm": "alugafacil",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "alugafacil-backend",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "0otAfyfxwy2BGLlr2xomdn3fjKFzTdJL",
+      "directAccessGrantsEnabled": true,
+      "publicClient": false,
+      "protocol": "openid-connect"
+    }
+  ],
+  "users": [
+    {
+      "username": "teste@alugafacil.com",
+      "email": "teste@alugafacil.com",
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "123",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}
