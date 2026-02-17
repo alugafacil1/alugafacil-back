@@ -8,6 +8,9 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +22,7 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import br.edu.ufape.alugafacil.dtos.property.PropertyFilterRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyResponse;
+import br.edu.ufape.alugafacil.dtos.property.PropertyStatusDTO;
 import br.edu.ufape.alugafacil.enums.PropertyStatus;
 import br.edu.ufape.alugafacil.enums.SubscriptionStatus;
 import br.edu.ufape.alugafacil.mappers.PropertyMapper;
@@ -47,18 +51,14 @@ public class PropertyService implements IPropertyService {
     private final UserRepository userRepository;
     private final PropertyMapper propertyMapper;
     private final IFileStorageService fileStorageService;
-    
-    // Novas injeções
     private final UserSearchPreferenceRepository preferenceRepository;
     private final INotificationService notificationService;
     private final SubscriptionRepository subscriptionRepository;
     
-    // Método auxiliar para pegar plano
     private Plan getUserActivePlan(User user) {
         return subscriptionRepository.findFirstByUserUserIdAndStatus(user.getUserId(), SubscriptionStatus.ACTIVE)
                 .map(subscription -> subscription.getPlan())
                 .orElseGet(() -> {
-                    // Fallback: Plano Free Padrão (Idealmente viria do banco)
                     Plan freePlan = new Plan();
                     freePlan.setPropertiesCount(1);
                     freePlan.setImagesCount(5);
@@ -71,11 +71,9 @@ public class PropertyService implements IPropertyService {
     @Override
     @Transactional
     public PropertyResponse createProperty(PropertyRequest request) {
-        // 1. Busca Dono
         User owner = userRepository.findById(request.userId())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + request.userId()));
         
-        // 2. Valida Plano
         Plan plan = getUserActivePlan(owner);
         long currentProperties = propertyRepository.countPropertiesByUser(owner.getUserId(), PropertyStatus.ACTIVE);
         
@@ -87,16 +85,13 @@ public class PropertyService implements IPropertyService {
             throw new RuntimeException("Seu plano atual não permite adicionar vídeos ao anúncio.");
         }
         
-        // 3. Monta Entidade
         Property property = propertyMapper.toEntity(request);
         property.setUser(owner);
         property.setIsPriority(plan.getIsPriority()); 
         property.setStatus(PropertyStatus.ACTIVE);
 
-        // 4. Salva
         Property savedProperty = propertyRepository.save(property);
         
-        // 5. Trigger de Notificação (Async)
         notifyInterestedUsers(savedProperty);
         
         return propertyMapper.toResponse(savedProperty);
@@ -108,14 +103,12 @@ public class PropertyService implements IPropertyService {
      */
     @Async 
     protected void notifyInterestedUsers(Property property) {
-        // Preparação de dados (Null Safety)
         Integer garageCount = (property.getGarage() != null && property.getGarage()) ? 1 : 0;
         Double lat = (property.getGeolocation() != null) ? property.getGeolocation().getLatitude() : null;
         Double lon = (property.getGeolocation() != null) ? property.getGeolocation().getLongitude() : null;
         String city = (property.getAddress() != null) ? property.getAddress().getCity() : null;
         String neighborhood = (property.getAddress() != null) ? property.getAddress().getNeighborhood() : null;
 
-        // Busca Matches
         List<UserSearchPreference> matches = preferenceRepository.findMatchingPreferences(
             property.getPriceInCents(),
             property.getNumberOfBedrooms(),
@@ -129,10 +122,9 @@ public class PropertyService implements IPropertyService {
             lon
         );
 
-        // Dispara Notificações
         for (UserSearchPreference preference : matches) {
             if (property.getUser() != null && preference.getUser().getUserId().equals(property.getUser().getUserId())) {
-                continue; // Não notificar a si mesmo
+                continue;
             }
 
             notificationService.notifyListingMatch(
@@ -155,7 +147,16 @@ public class PropertyService implements IPropertyService {
     public Page<PropertyResponse> getAllProperties(PropertyFilterRequest filters, Pageable pageable) {
         QProperty qProperty = QProperty.property;
         BooleanBuilder builder = new BooleanBuilder();
-    
+        
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = false;
+                
+        if (auth != null && auth.isAuthenticated()) {
+            isAdmin = auth.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .anyMatch(role -> role.equals("ROLE_ADMIN") || role.equals("ADMIN"));
+        }
+  
         if (filters != null) {
             if (filters.getLat() != null && filters.getLon() != null && filters.getRadius() != null) {
                 NumberExpression<Double> dbLat = qProperty.geolocation.latitude;
@@ -181,7 +182,9 @@ public class PropertyService implements IPropertyService {
             if (filters.getStatus() != null) {
                 builder.and(qProperty.status.eq(filters.getStatus()));
             } else {
-                 builder.and(qProperty.status.eq(PropertyStatus.ACTIVE));
+            	if (!isAdmin) {
+            		builder.and(qProperty.status.eq(PropertyStatus.ACTIVE));            		
+            	}
             }
 
             if (filters.getCity() != null && !filters.getCity().isEmpty()) {
@@ -263,4 +266,21 @@ public class PropertyService implements IPropertyService {
         
         return propertyMapper.toResponse(propertyRepository.save(property));
     }
+
+	@Override
+	@Transactional
+	public void updateStatus(UUID id, PropertyStatusDTO dto) {
+	    Property property = propertyRepository.findById(id)
+	        .orElseThrow(() -> new RuntimeException("Imóvel não encontrado"));
+	    
+	    property.setStatus(dto.status());
+	    
+	    if (dto.status() == PropertyStatus.REJECTED) {
+	        property.setModerationReason(dto.reason());
+	    } else if (dto.status() == PropertyStatus.ACTIVE) {
+	        property.setModerationReason(null); 
+	    }
+	    
+	    propertyRepository.save(property);
+	}
 }

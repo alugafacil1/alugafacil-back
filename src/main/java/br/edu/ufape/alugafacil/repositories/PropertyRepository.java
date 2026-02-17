@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.query.Param;
@@ -20,4 +21,8 @@ public interface PropertyRepository extends
 	List<Property> findByUserUserId(UUID userId);
 	@Query("SELECT COUNT(p) FROM Property p WHERE p.user.userId = :userId AND p.status = :status")
 	long countPropertiesByUser(@Param("userId") UUID userId, @Param("status") PropertyStatus status);
+	
+	@Modifying
+	@Query("UPDATE Property p SET p.status = 'PAUSED' WHERE p.user.id = :userId AND p.status = 'ACTIVE'")
+	void pauseActivePropertiesByUserId(@Param("userId") UUID userId);
 }
