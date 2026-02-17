@@ -1,5 +1,6 @@
 package br.edu.ufape.alugafacil.dtos.user;
 
+import br.edu.ufape.alugafacil.enums.UserStatus;
 import br.edu.ufape.alugafacil.enums.UserType;
 import br.edu.ufape.alugafacil.models.Property;
 import br.edu.ufape.alugafacil.models.RealStateAgency;
@@ -15,10 +16,10 @@ public record UserResponse  (
         String photoUrl,
         String cpf,
         String creciNumber,
-        String password,
         String phoneNumber,
         UserType userType,
-        RealStateAgency agency
+        RealStateAgency agency,
+        UserStatus status
         // List<Property> properties,
         // List<Subscription> subscriptions
 ){}

@@ -84,4 +84,7 @@ public class Property {
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+    
+    @Column(name = "moderation_reason", columnDefinition = "TEXT", nullable = true)
+    private String moderationReason;
 }
