@@ -98,5 +98,18 @@ public class PropertyController {
 	    propertyService.updateStatus(id, dto); 
 	    return ResponseEntity.noContent().build();
 	}
+
+	@GetMapping("/recent")
+	public ResponseEntity<List<PropertyResponse>> getRecentProperties(
+			@RequestParam(defaultValue = "20") int limit) {
+		if (limit < 1) {
+			limit = 20;
+		}
+		if (limit > 100) {
+			limit = 100;
+		}
+		List<PropertyResponse> response = propertyService.getRecentProperties(limit);
+		return ResponseEntity.ok(response);
+	}
 }
 

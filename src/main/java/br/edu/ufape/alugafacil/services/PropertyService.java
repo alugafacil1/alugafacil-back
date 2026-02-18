@@ -6,6 +6,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
@@ -24,7 +25,7 @@ import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyResponse;
 import br.edu.ufape.alugafacil.dtos.property.PropertyStatusDTO;
 import br.edu.ufape.alugafacil.enums.PropertyStatus;
-import br.edu.ufape.alugafacil.enums.SubscriptionStatus;
+import br.edu.ufape.alugafacil.enums.PaymentStatus;
 import br.edu.ufape.alugafacil.mappers.PropertyMapper;
 import br.edu.ufape.alugafacil.models.Plan;
 import br.edu.ufape.alugafacil.models.Property;
@@ -56,7 +57,7 @@ public class PropertyService implements IPropertyService {
     private final SubscriptionRepository subscriptionRepository;
     
     private Plan getUserActivePlan(User user) {
-        return subscriptionRepository.findFirstByUserUserIdAndStatus(user.getUserId(), SubscriptionStatus.ACTIVE)
+        return subscriptionRepository.findFirstByUserUserIdAndStatus(user.getUserId(), PaymentStatus.ACTIVE)
                 .map(subscription -> subscription.getPlan())
                 .orElseGet(() -> {
                     Plan freePlan = new Plan();
@@ -282,5 +283,14 @@ public class PropertyService implements IPropertyService {
 	    }
 	    
 	    propertyRepository.save(property);
+	}
+
+	@Override
+	public List<PropertyResponse> getRecentProperties(int limit) {
+		Pageable pageable = PageRequest.of(0, limit);
+		List<Property> properties = propertyRepository.findRecentProperties(PropertyStatus.ACTIVE, pageable);
+		return properties.stream()
+				.map(propertyMapper::toResponse)
+				.collect(Collectors.toList());
 	}
 }
