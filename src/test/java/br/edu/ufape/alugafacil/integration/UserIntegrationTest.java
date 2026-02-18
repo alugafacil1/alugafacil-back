@@ -14,6 +14,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,9 +76,10 @@ class UserIntegrationTest {
         userService.saveUser(criarUserRequest("User 1", "u1@test.com", "111"));
         userService.saveUser(criarUserRequest("User 2", "u2@test.com", "222"));
 
-        List<UserResponse> users = userService.getAllUsers();
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<UserResponse> usersPage = userService.getAllUsers(pageable);
 
-        assertThat(users).hasSize(2);
+        assertThat(usersPage.getContent()).hasSize(2);
     }
 
     @Test

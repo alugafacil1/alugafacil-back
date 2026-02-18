@@ -34,7 +34,7 @@ import br.edu.ufape.alugafacil.services.interfaces.IFileStorageService;
 import br.edu.ufape.alugafacil.dtos.property.PropertyFilterRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
 import br.edu.ufape.alugafacil.enums.PropertyStatus;
-import br.edu.ufape.alugafacil.enums.SubscriptionStatus;
+import br.edu.ufape.alugafacil.enums.PaymentStatus;
 import br.edu.ufape.alugafacil.models.Plan;
 import br.edu.ufape.alugafacil.models.Subscription;
 import br.edu.ufape.alugafacil.models.User;
@@ -136,7 +136,7 @@ class PropertyServiceTest {
         PropertyResponse responseEsperado = criarResponseFake(UUID.randomUUID());
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
-        when(subscriptionRepository.findFirstByUserUserIdAndStatus(userId, SubscriptionStatus.ACTIVE))
+        when(subscriptionRepository.findFirstByUserUserIdAndStatus(userId, PaymentStatus.ACTIVE))
             .thenReturn(Optional.of(subscription));
             
         when(propertyRepository.countPropertiesByUser(userId, PropertyStatus.ACTIVE)).thenReturn(0L);
@@ -174,7 +174,7 @@ class PropertyServiceTest {
         );
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
-        when(subscriptionRepository.findFirstByUserUserIdAndStatus(userId, SubscriptionStatus.ACTIVE))
+        when(subscriptionRepository.findFirstByUserUserIdAndStatus(userId, PaymentStatus.ACTIVE))
             .thenReturn(Optional.of(subscription));
         when(propertyRepository.countPropertiesByUser(userId, PropertyStatus.ACTIVE)).thenReturn(2L);
 
@@ -208,7 +208,7 @@ class PropertyServiceTest {
         );
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
-        when(subscriptionRepository.findFirstByUserUserIdAndStatus(userId, SubscriptionStatus.ACTIVE))
+        when(subscriptionRepository.findFirstByUserUserIdAndStatus(userId, PaymentStatus.ACTIVE))
             .thenReturn(Optional.of(subscription));
         
         when(propertyRepository.countPropertiesByUser(userId, PropertyStatus.ACTIVE)).thenReturn(0L);
