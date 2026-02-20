@@ -1,7 +1,22 @@
 package br.edu.ufape.alugafacil.services;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import br.edu.ufape.alugafacil.dtos.user.UserRequest;
 import br.edu.ufape.alugafacil.dtos.user.UserResponse;
+import br.edu.ufape.alugafacil.enums.UserStatus;
 import br.edu.ufape.alugafacil.exceptions.ResourceNotFoundException;
 import br.edu.ufape.alugafacil.exceptions.UserCpfDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserEmailDuplicadoException;
@@ -10,21 +25,10 @@ import br.edu.ufape.alugafacil.mappers.RealStateAgencyPropertyMapper;
 import br.edu.ufape.alugafacil.mappers.UserPropertyMapper;
 import br.edu.ufape.alugafacil.models.RealStateAgency;
 import br.edu.ufape.alugafacil.models.User;
+import br.edu.ufape.alugafacil.repositories.PropertyRepository;
 import br.edu.ufape.alugafacil.repositories.UserRepository;
 import br.edu.ufape.alugafacil.services.interfaces.IUserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +39,7 @@ public class UserService implements IUserService {
     private final RealStateAgencyPropertyMapper agencyMapper;
     private final SubscriptionService subscriptionService;
     private final Path fileStorageLocation = Paths.get("uploads").toAbsolutePath().normalize();
+    private final PropertyRepository propertyRepository;
 
     @Override
     @Transactional
@@ -81,10 +86,9 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserResponse> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(userPropertyMapper::toResponse)
-                .toList();
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+    	return userRepository.findAll(pageable)
+                .map(userPropertyMapper::toResponse);
     }
 
     @Override
@@ -166,6 +170,21 @@ public class UserService implements IUserService {
         } catch (IOException ex) {
             throw new RuntimeException("Erro ao salvar arquivo " + file.getOriginalFilename(), ex);
         }
+    }
+    
+    @Override
+    @Transactional
+    public void updateUserStatus(UUID id, UserStatus newStatus) throws UserNotFoundException {
+    	User u = userRepository.findById(id)
+    			.orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
+    	
+    	u.setStatus(newStatus);
+    	
+    	if (newStatus == UserStatus.BLOCKED) {
+    		propertyRepository.pauseActivePropertiesByUserId(id);
+    	}
+    	
+    	userRepository.save(u);
     }
 
     private String getFileExtension(String fileName) {

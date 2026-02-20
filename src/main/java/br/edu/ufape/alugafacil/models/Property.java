@@ -9,7 +9,10 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+
 
 import br.edu.ufape.alugafacil.enums.PropertyStatus;
 import br.edu.ufape.alugafacil.enums.PropertyType;
@@ -85,4 +88,7 @@ public class Property {
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+    
+    @Column(name = "moderation_reason", columnDefinition = "TEXT", nullable = true)
+    private String moderationReason;
 }
