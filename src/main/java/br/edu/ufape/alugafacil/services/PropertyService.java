@@ -23,9 +23,11 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import br.edu.ufape.alugafacil.dtos.property.PropertyFilterRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyResponse;
+
 import br.edu.ufape.alugafacil.enums.PaymentStatus;
 import br.edu.ufape.alugafacil.enums.PropertyStatus;
 import br.edu.ufape.alugafacil.dtos.property.PropertyStatusDTO;
+
 import br.edu.ufape.alugafacil.mappers.PropertyMapper;
 import br.edu.ufape.alugafacil.models.Plan;
 import br.edu.ufape.alugafacil.models.Property;
@@ -168,6 +170,7 @@ public class PropertyService implements IPropertyService {
                     .anyMatch(role -> role.equals("ROLE_ADMIN") || role.equals("ADMIN"));
         }
 
+
         if (filters != null) {
             // --- Geolocalização ---
             if (filters.getLat() != null && filters.getLon() != null && filters.getRadius() != null) {
@@ -200,9 +203,9 @@ public class PropertyService implements IPropertyService {
                 if (!isAdmin) {
                     builder.and(qProperty.status.eq(PropertyStatus.ACTIVE));                    
                 }
-            }
 
-            // --- Endereço (Incluindo o novo campo State) ---
+            }
+            
             if (filters.getCity() != null && !filters.getCity().isEmpty()) {
                 builder.and(qProperty.address.city.containsIgnoreCase(filters.getCity()));
             }

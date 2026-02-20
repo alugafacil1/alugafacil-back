@@ -11,6 +11,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 
+
+
+
 import br.edu.ufape.alugafacil.enums.PropertyStatus;
 import br.edu.ufape.alugafacil.enums.PropertyType;
 import jakarta.persistence.Column;
