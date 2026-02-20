@@ -1,12 +1,12 @@
 package br.edu.ufape.alugafacil.dtos.user;
 
-import br.edu.ufape.alugafacil.enums.UserType;
-import br.edu.ufape.alugafacil.models.Property;
-import br.edu.ufape.alugafacil.models.RealStateAgency;
-import br.edu.ufape.alugafacil.models.Subscription;
-
-import java.util.List;
 import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import br.edu.ufape.alugafacil.dtos.realStateAgency.RealStateAgencyResponse;
+import br.edu.ufape.alugafacil.enums.UserStatus;
+import br.edu.ufape.alugafacil.enums.UserType;
 
 public record UserResponse  (
         UUID userId,
@@ -15,10 +15,10 @@ public record UserResponse  (
         String photoUrl,
         String cpf,
         String creciNumber,
-        String password,
         String phoneNumber,
         UserType userType,
-        RealStateAgency agency,
-        List<Property> properties,
-        List<Subscription> subscriptions
+        @JsonIgnoreProperties({"user", "members"})
+        RealStateAgencyResponse agency,
+        UserStatus status,
+        Integer propertiesCount
 ){}

@@ -1,5 +1,5 @@
 package br.edu.ufape.alugafacil.config;
-
+import org.springframework.http.HttpStatus;
 import br.edu.ufape.alugafacil.exceptions.ResourceNotFoundException;
 import br.edu.ufape.alugafacil.exceptions.StandardError;
 import br.edu.ufape.alugafacil.exceptions.ValidationError;
@@ -9,10 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
+import lombok.extern.slf4j.Slf4j;
 import java.time.Instant;
 
 @ControllerAdvice
+@Slf4j
 public class ControllerExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -28,15 +29,22 @@ public class ControllerExceptionHandler {
         
         ValidationError err = new ValidationError();
         err.setTimestamp(Instant.now());
-        err.setStatus(HttpStatusCode.valueOf(422).value());
+        err.setStatus(HttpStatus.UNPROCESSABLE_ENTITY.value()); 
         err.setError("Erro de Validação");
         err.setMessage("Ocorreram erros na validação dos campos");
         err.setPath(request.getRequestURI());
 
+        
+        log.error(" Erro de validação detectado em: {}", request.getRequestURI());
+
         e.getBindingResult().getFieldErrors().forEach(f -> {
+            
+            log.error("[VALIDATION ERROR] Campo: {} | Mensagem: {} | Valor rejeitado: [{}]", 
+                    f.getField(), f.getDefaultMessage(), f.getRejectedValue());
+            
             err.addError(f.getField(), f.getDefaultMessage());
         });
-
-        return ResponseEntity.status(HttpStatusCode.valueOf(422)).body(err);
+        
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(err);
     }
 }

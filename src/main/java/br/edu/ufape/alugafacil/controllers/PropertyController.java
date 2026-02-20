@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -25,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import br.edu.ufape.alugafacil.dtos.property.PropertyFilterRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyResponse;
+import br.edu.ufape.alugafacil.dtos.property.PropertyStatusDTO;
 import br.edu.ufape.alugafacil.services.interfaces.IFileStorageService;
 import br.edu.ufape.alugafacil.services.interfaces.IPropertyService;
 import jakarta.validation.Valid;
@@ -62,7 +64,7 @@ public class PropertyController {
 	}
 	
 	@GetMapping("/owner/{userId}")
-	public ResponseEntity<List<PropertyResponse>> listByOwner(@PathVariable UUID userId) { // Mude de 'id' para 'userId'
+	public ResponseEntity<List<PropertyResponse>> listByOwner(@PathVariable UUID userId) {
 		return ResponseEntity.ok(propertyService.getPropertiesByUserId(userId));
 	}
 	
@@ -86,6 +88,28 @@ public class PropertyController {
 			) {
 		PropertyResponse response = propertyService.addPhotos(id, files);
 	    return ResponseEntity.ok(response);
+	}
+
+	@PatchMapping("/{id}/status")
+	public ResponseEntity<Void> updateStatus(
+	        @PathVariable UUID id, 
+	        @RequestBody PropertyStatusDTO dto) {
+	    
+	    propertyService.updateStatus(id, dto); 
+	    return ResponseEntity.noContent().build();
+	}
+
+	@GetMapping("/recent")
+	public ResponseEntity<List<PropertyResponse>> getRecentProperties(
+			@RequestParam(defaultValue = "20") int limit) {
+		if (limit < 1) {
+			limit = 20;
+		}
+		if (limit > 100) {
+			limit = 100;
+		}
+		List<PropertyResponse> response = propertyService.getRecentProperties(limit);
+		return ResponseEntity.ok(response);
 	}
 }
 

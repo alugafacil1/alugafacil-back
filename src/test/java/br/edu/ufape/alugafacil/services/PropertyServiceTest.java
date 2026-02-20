@@ -125,9 +125,10 @@ class PropertyServiceTest {
         Subscription subscription = new Subscription();
         subscription.setPlan(plan);
 
+
         PropertyRequest request = new PropertyRequest(
             "Casa Nova", "Descrição Top", null, null, 100000, 2, 1, 1, true, true, true, true, 
-            "http://video.com", "879999999", null, PropertyStatus.ACTIVE, PropertyType.HOUSE, userId           
+            "http://video.com", "879999999", null, null, null, PropertyStatus.ACTIVE, PropertyType.HOUSE, userId          
         );
 
         Property propertyEntity = new Property();
@@ -143,8 +144,10 @@ class PropertyServiceTest {
         when(propertyMapper.toEntity(request)).thenReturn(propertyEntity);
         when(propertyRepository.save(propertyEntity)).thenReturn(propertyEntity);
         when(propertyMapper.toResponse(propertyEntity)).thenReturn(responseEsperado);
+        
+
         lenient().when(preferenceRepository.findMatchingPreferences(
-            any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+            any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
         )).thenReturn(Collections.emptyList());
 
         PropertyResponse resultado = propertyService.createProperty(request);
@@ -168,9 +171,10 @@ class PropertyServiceTest {
         Subscription subscription = new Subscription();
         subscription.setPlan(plan);
 
+        
         PropertyRequest request = new PropertyRequest(
             "Casa", "Desc", null, null, 100, 1, 1, 1, false, false, false, true, 
-            null, "999", null, PropertyStatus.ACTIVE, PropertyType.HOUSE, userId
+            null, "999", null, null, null, PropertyStatus.ACTIVE, PropertyType.HOUSE, userId
         );
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
@@ -202,9 +206,10 @@ class PropertyServiceTest {
         Subscription subscription = new Subscription();
         subscription.setPlan(plan);
 
+        
         PropertyRequest request = new PropertyRequest(
             "Casa", "Desc", null, null, 100, 1, 1, 1, false, false, false, true, 
-            "http://youtube.com/meuvideo", "999", null, PropertyStatus.ACTIVE, PropertyType.HOUSE, userId
+            "http://youtube.com/meuvideo", "999", null, null, null, PropertyStatus.ACTIVE, PropertyType.HOUSE, userId
         );
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(owner));

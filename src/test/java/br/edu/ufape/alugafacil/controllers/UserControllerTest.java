@@ -22,8 +22,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import br.edu.ufape.alugafacil.dtos.notifications.FcmTokenRequest;
 import br.edu.ufape.alugafacil.dtos.user.UserRequest;
 import br.edu.ufape.alugafacil.dtos.user.UserResponse;
+import br.edu.ufape.alugafacil.enums.UserStatus;
 import br.edu.ufape.alugafacil.enums.UserType;
 import br.edu.ufape.alugafacil.services.interfaces.IUserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.security.test.context.support.WithMockUser;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -65,12 +70,11 @@ class UserControllerTest {
                 null,
                 "12345678900",
                 null,
-                "senha123",
                 "81999999999",
                 UserType.TENANT,
                 null,
-                List.of(),
-                List.of()
+                UserStatus.ACTIVE,
+                0
         );
 
         when(userService.saveUser(any())).thenReturn(response);
@@ -95,16 +99,16 @@ class UserControllerTest {
                 null,
                 "98765432100",
                 null,
-                "senha123",
                 "81999999999",
                 UserType.TENANT,
                 null,
-                List.of(),
-                List.of()
+                UserStatus.ACTIVE,
+                0
         );
 
-
-        when(userService.getAllUsers()).thenReturn(List.of(user));
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<UserResponse> userPage = new PageImpl<>(List.of(user));
+        when(userService.getAllUsers(any(Pageable.class))).thenReturn(userPage);
 
         mockMvc.perform(get("/api/users"))
                 .andExpect(status().isOk())
@@ -123,12 +127,11 @@ class UserControllerTest {
                 null,
                 "11122233344",
                 null,
-                "senha123",
                 "81999999999",
                 UserType.TENANT,
                 null,
-                List.of(),
-                List.of()
+                UserStatus.ACTIVE,
+                0
         );
 
 
@@ -167,12 +170,11 @@ class UserControllerTest {
                 null,
                 "12345678900",
                 null,
-                "senha12343",
                 "81999999999",
                 UserType.TENANT,
                 null,
-                List.of(),
-                List.of()
+                UserStatus.ACTIVE,
+                0
         );
 
         when(userService.updateUser(eq(id), any())).thenReturn(response);

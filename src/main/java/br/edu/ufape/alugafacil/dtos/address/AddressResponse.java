@@ -4,7 +4,8 @@ public record AddressResponse(
     String street,
     String city,
     String state,
-    String zipCode,
+    String postalCode,
     String number,
-    String neighborhood
+    String neighborhood,
+    String complement 
 ) {}

@@ -1,142 +1,149 @@
 package br.edu.ufape.alugafacil.services;
 
-import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.edu.ufape.alugafacil.dtos.realStateAgency.RealStateAgencyRequest;
+import br.edu.ufape.alugafacil.dtos.realStateAgency.RealStateAgencyResponse;
 import br.edu.ufape.alugafacil.enums.UserType;
+import br.edu.ufape.alugafacil.mappers.RealStateAgencyPropertyMapper;
 import br.edu.ufape.alugafacil.models.Property;
 import br.edu.ufape.alugafacil.models.RealStateAgency;
 import br.edu.ufape.alugafacil.models.User;
 import br.edu.ufape.alugafacil.repositories.PropertyRepository;
 import br.edu.ufape.alugafacil.repositories.RealStateAgencyRepository;
 import br.edu.ufape.alugafacil.repositories.UserRepository;
+import lombok.RequiredArgsConstructor;
 
 @Service
-public class RealStateAgencyService  {
+@RequiredArgsConstructor
+public class RealStateAgencyService {
     
-    @Autowired
-    private RealStateAgencyRepository realStateAgencyRepository;
+    private final RealStateAgencyRepository realStateAgencyRepository;
+    private final UserRepository userRepository;
+    private final PropertyRepository propertyRepository;
+    private final RealStateAgencyPropertyMapper mapper;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PropertyRepository propertyRepository;
-
-     public List<RealStateAgency> getAllRealStateAgencies() {
-        return realStateAgencyRepository.findAll();
+    @Transactional(readOnly = true)
+    public Page<RealStateAgencyResponse> getAllRealStateAgencies(Pageable pageable) {
+        return realStateAgencyRepository.findAll(pageable)
+                .map(mapper::toResponse);
     }
 
-    public RealStateAgency getRealStateAgencyById(UUID agencyId) {
-        return realStateAgencyRepository.findById(agencyId).orElse(null);
+    @Transactional(readOnly = true)
+    public RealStateAgencyResponse getRealStateAgencyById(UUID agencyId) {
+        RealStateAgency agency = getAgencyOrThrow(agencyId);
+        return mapper.toResponse(agency);
     }
 
-    public List<User> getMembers(UUID agencyId) {
-        return userRepository.findByAgencyId(agencyId);
-    }
-
-    public RealStateAgency createRealStateAgency(RealStateAgencyRequest realStateAgency) {
-        RealStateAgency newRealStateAgency = new RealStateAgency();
-
-        newRealStateAgency.setName(realStateAgency.getName());
-        newRealStateAgency.setCorporateName(realStateAgency.getCorporateName());
-        newRealStateAgency.setEmail(realStateAgency.getEmail());
-        newRealStateAgency.setPhotoUrl(realStateAgency.getPhotoUrl());
-        newRealStateAgency.setCnpj(realStateAgency.getCnpj());
-        newRealStateAgency.setWebsite(realStateAgency.getWebsite());
-        newRealStateAgency.setPhoneNumber(realStateAgency.getPhoneNumber());
-
-        return realStateAgencyRepository.save(newRealStateAgency);
-    }
-
-    public RealStateAgency updateRealStateAgency(UUID agencyId, RealStateAgencyRequest realStateAgency) {
-        RealStateAgency existingAgency = realStateAgencyRepository.findById(agencyId).orElse(null);
+    @Transactional
+    public RealStateAgencyResponse createRealStateAgency(RealStateAgencyRequest request) {
+        RealStateAgency newAgency = mapper.toEntity(request);
         
-        if (existingAgency != null) {
-            existingAgency.setName(realStateAgency.getName());
-            existingAgency.setCorporateName(realStateAgency.getCorporateName());
-            existingAgency.setEmail(realStateAgency.getEmail());
-            existingAgency.setPhotoUrl(realStateAgency.getPhotoUrl());
-            existingAgency.setCnpj(realStateAgency.getCnpj());
-            existingAgency.setWebsite(realStateAgency.getWebsite());
-            existingAgency.setPhoneNumber(realStateAgency.getPhoneNumber());
-
-            return realStateAgencyRepository.save(existingAgency);
-        }
-        return null;
+        RealStateAgency savedAgency = realStateAgencyRepository.save(newAgency);
+        
+        return mapper.toResponse(savedAgency);
     }
 
+    @Transactional
+    public RealStateAgencyResponse updateRealStateAgency(UUID agencyId, RealStateAgencyRequest request) {
+        RealStateAgency existingAgency = getAgencyOrThrow(agencyId);
+        
+        mapper.updateEntityFromRequest(request, existingAgency);
+        
+        RealStateAgency updatedAgency = realStateAgencyRepository.save(existingAgency);
+        return mapper.toResponse(updatedAgency);
+    }
+
+    @Transactional
     public void deleteRealStateAgency(UUID agencyId) {
+        if (!realStateAgencyRepository.existsById(agencyId)) {
+            throw new IllegalArgumentException("Agência não encontrada.");
+        }
         realStateAgencyRepository.deleteById(agencyId);
     }
 
+    @Transactional
     public void addMember(UUID agencyId, UUID userId, UUID actingUserId) {
-        RealStateAgency agency = realStateAgencyRepository.findById(agencyId).orElseThrow(() -> new IllegalArgumentException("Agency not found"));
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        User actingUser = userRepository.findById(actingUserId).orElseThrow(() -> new IllegalArgumentException("Acting user not found"));
-
-        boolean isOwner = agency.getUser() != null && agency.getUser().getUserId().equals(actingUserId);
-        boolean isAdmin = actingUser.getUserType() == UserType.ADMIN;
-        if (!isOwner && !isAdmin) {
-            throw new IllegalArgumentException("Not authorized to add members");
-        }
+        RealStateAgency agency = getAgencyOrThrow(agencyId);
+        User user = getUserOrThrow(userId);
+        
+        validateAgencyAdminOrSystemAdmin(agency, actingUserId);
 
         if (user.getUserType() != UserType.REALTOR) {
-            throw new IllegalArgumentException("Only users with REALTOR type can be added as members");
+            throw new IllegalArgumentException("Apenas usuários do tipo CORRETOR (REALTOR) podem ser adicionados como membros.");
         }
 
         user.setAgency(agency);
         userRepository.save(user);
     }
 
+    @Transactional
     public void removeMember(UUID agencyId, UUID userId, UUID actingUserId) {
-        RealStateAgency agency = realStateAgencyRepository.findById(agencyId).orElseThrow(() -> new IllegalArgumentException("Agency not found"));
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        User actingUser = userRepository.findById(actingUserId).orElseThrow(() -> new IllegalArgumentException("Acting user not found"));
+        RealStateAgency agency = getAgencyOrThrow(agencyId);
+        User user = getUserOrThrow(userId);
 
-        boolean isOwner = agency.getUser() != null && agency.getUser().getUserId().equals(actingUserId);
-        boolean isAdmin = actingUser.getUserType() == UserType.ADMIN;
-        if (!isOwner && !isAdmin) {
-            throw new IllegalArgumentException("Not authorized to remove members");
-        }
+        validateAgencyAdminOrSystemAdmin(agency, actingUserId);
 
         if (user.getAgency() == null || !agency.getAgencyId().equals(user.getAgency().getAgencyId())) {
-            throw new IllegalArgumentException("User is not a member of the agency");
+            throw new IllegalArgumentException("Usuário não é um membro desta agência.");
         }
 
         if (agency.getUser() != null && agency.getUser().getUserId().equals(user.getUserId())) {
-            throw new IllegalArgumentException("Cannot remove agency owner");
+            throw new IllegalArgumentException("Não é possível remover o proprietário da agência.");
         }
 
         user.setAgency(null);
         userRepository.save(user);
     }
 
+    @Transactional
     public void transferProperty(UUID agencyId, UUID propertyId, UUID targetUserId, UUID actingUserId) {
-        RealStateAgency agency = realStateAgencyRepository.findById(agencyId).orElseThrow(() -> new IllegalArgumentException("Agency not found"));
-        Property property = propertyRepository.findById(propertyId).orElseThrow(() -> new IllegalArgumentException("Property not found"));
-        User target = userRepository.findById(targetUserId).orElseThrow(() -> new IllegalArgumentException("Target user not found"));
-        User actingUser = userRepository.findById(actingUserId).orElseThrow(() -> new IllegalArgumentException("Acting user not found"));
+        RealStateAgency agency = getAgencyOrThrow(agencyId);
+        User targetUser = getUserOrThrow(targetUserId);
+        Property property = propertyRepository.findById(propertyId)
+                .orElseThrow(() -> new IllegalArgumentException("Imóvel não encontrado."));
 
-        boolean isOwner = agency.getUser() != null && agency.getUser().getUserId().equals(actingUserId);
-        boolean isAdmin = actingUser.getUserType() == UserType.ADMIN;
-        if (!isOwner && !isAdmin) {
-            throw new IllegalArgumentException("Not authorized to transfer property");
-        }
+        validateAgencyAdminOrSystemAdmin(agency, actingUserId);
 
-        if (target.getAgency() == null || !agency.getAgencyId().equals(target.getAgency().getAgencyId())) {
-            throw new IllegalArgumentException("Target user must be a member of the agency");
+        if (targetUser.getAgency() == null || !agency.getAgencyId().equals(targetUser.getAgency().getAgencyId())) {
+            throw new IllegalArgumentException("O usuário destino deve ser membro desta agência.");
         }
 
         if (property.getUser() == null || property.getUser().getAgency() == null || !agency.getAgencyId().equals(property.getUser().getAgency().getAgencyId())) {
-            throw new IllegalArgumentException("Property responsible must belong to the same agency");
+            throw new IllegalArgumentException("O responsável atual pelo imóvel deve pertencer à mesma agência.");
         }
 
-        property.setUser(target);
+        property.setUser(targetUser);
         propertyRepository.save(property);
+    }
+
+    // =========================================================================
+    // MÉTODOS PRIVADOS AUXILIARES
+    // =========================================================================
+
+    private RealStateAgency getAgencyOrThrow(UUID agencyId) {
+        return realStateAgencyRepository.findById(agencyId)
+                .orElseThrow(() -> new IllegalArgumentException("Agência não encontrada com o ID fornecido."));
+    }
+
+    private User getUserOrThrow(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
+    }
+
+    private void validateAgencyAdminOrSystemAdmin(RealStateAgency agency, UUID actingUserId) {
+        User actingUser = getUserOrThrow(actingUserId);
+        
+        boolean isOwner = agency.getUser() != null && agency.getUser().getUserId().equals(actingUserId);
+        boolean isAdmin = actingUser.getUserType() == UserType.ADMIN;
+        
+        if (!isOwner && !isAdmin) {
+            throw new IllegalArgumentException("Usuário não autorizado para realizar esta ação na agência.");
+        }
     }
 }

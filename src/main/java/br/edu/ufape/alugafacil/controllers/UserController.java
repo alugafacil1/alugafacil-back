@@ -1,32 +1,41 @@
 package br.edu.ufape.alugafacil.controllers;
 
 
-import br.edu.ufape.alugafacil.dtos.notifications.FcmTokenRequest;
-import br.edu.ufape.alugafacil.dtos.user.UserRequest;
-import br.edu.ufape.alugafacil.dtos.user.UserResponse;
-import br.edu.ufape.alugafacil.exceptions.UserCpfDuplicadoException;
-import br.edu.ufape.alugafacil.exceptions.UserEmailDuplicadoException;
-import br.edu.ufape.alugafacil.exceptions.UserNotFoundException;
-import br.edu.ufape.alugafacil.models.User;
-import br.edu.ufape.alugafacil.services.interfaces.IUserService;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.MalformedURLException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
+import br.edu.ufape.alugafacil.dtos.notifications.FcmTokenRequest;
+import br.edu.ufape.alugafacil.dtos.user.UserRequest;
+import br.edu.ufape.alugafacil.dtos.user.UserResponse;
+import br.edu.ufape.alugafacil.dtos.user.UserStatusDTO;
+import br.edu.ufape.alugafacil.exceptions.UserCpfDuplicadoException;
+import br.edu.ufape.alugafacil.exceptions.UserEmailDuplicadoException;
+import br.edu.ufape.alugafacil.exceptions.UserNotFoundException;
+import br.edu.ufape.alugafacil.services.interfaces.IUserService;
 import lombok.AllArgsConstructor;
 
 @RestController
@@ -48,8 +57,13 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<Page<UserResponse>> getAllUsers(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        
+        return ResponseEntity.ok(userService.getAllUsers(pageable));
     }
 
     @GetMapping("/me")
@@ -142,6 +156,16 @@ public class UserController {
             return ResponseEntity.noContent().build();
         } catch (UserNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Void> updateStatus(@PathVariable UUID id, @RequestBody UserStatusDTO dto) {
+        try {
+            userService.updateUserStatus(id, dto.status());
+            return ResponseEntity.noContent().build();
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 }

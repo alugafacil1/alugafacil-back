@@ -51,8 +51,10 @@ public interface UserSearchPreferenceRepository extends JpaRepository<UserSearch
         @Param("petFriendly") Boolean petFriendly,
         @Param("city") String city,
         @Param("neighborhood") String neighborhood,
+        @Param("state") String state, 
         @Param("lat") Double lat,
-        @Param("lon") Double lon
+        @Param("lon") Double lon,
+        @Param("amenities") List<String> amenities, 
+        @Param("houseRules") List<String> houseRules 
     );
-
 }

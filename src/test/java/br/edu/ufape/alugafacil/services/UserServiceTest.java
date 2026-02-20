@@ -20,7 +20,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import br.edu.ufape.alugafacil.dtos.user.UserRequest;
 import br.edu.ufape.alugafacil.dtos.user.UserResponse;
+import br.edu.ufape.alugafacil.enums.UserStatus;
 import br.edu.ufape.alugafacil.enums.UserType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import br.edu.ufape.alugafacil.exceptions.ResourceNotFoundException;
 import br.edu.ufape.alugafacil.exceptions.UserCpfDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserEmailDuplicadoException;
@@ -84,12 +88,11 @@ class UserServiceTest {
                 null,
                 "12345678900",
                 null,
-                "senha123",
                 "81999999999",
                 UserType.TENANT,
                 null,
-                List.of(),
-                List.of()
+                UserStatus.ACTIVE,
+                0
         );
     }
 
@@ -162,12 +165,14 @@ class UserServiceTest {
     @Test
     @DisplayName("Deve retornar todos os usuários")
     void shouldReturnAllUsers() {
-        when(userRepository.findAll()).thenReturn(List.of(user));
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<User> userPage = new org.springframework.data.domain.PageImpl<>(List.of(user));
+        when(userRepository.findAll(pageable)).thenReturn(userPage);
         when(userPropertyMapper.toResponse(user)).thenReturn(userResponse);
 
-        List<UserResponse> list = userService.getAllUsers();
+        Page<UserResponse> result = userService.getAllUsers(pageable);
 
-        assertEquals(1, list.size());
+        assertEquals(1, result.getContent().size());
     }
 
     @Test

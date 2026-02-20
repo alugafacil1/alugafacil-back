@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import br.edu.ufape.alugafacil.dtos.property.PropertyFilterRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyResponse;
+import br.edu.ufape.alugafacil.dtos.property.PropertyStatusDTO;
 
 public interface IPropertyService {
 	PropertyResponse createProperty(PropertyRequest request);
@@ -19,4 +20,6 @@ public interface IPropertyService {
     PropertyResponse updateProperty(UUID id, PropertyRequest request);
     void deleteProperty(UUID id);
     PropertyResponse addPhotos(UUID id, List<MultipartFile> files);
+    void updateStatus(UUID id, PropertyStatusDTO dto);
+    List<PropertyResponse> getRecentProperties(int limit);
 }
