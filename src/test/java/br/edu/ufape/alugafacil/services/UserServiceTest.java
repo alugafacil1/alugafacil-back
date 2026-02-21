@@ -26,7 +26,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import br.edu.ufape.alugafacil.dtos.user.UserRequest;
 import br.edu.ufape.alugafacil.dtos.user.UserResponse;
 import br.edu.ufape.alugafacil.enums.UserStatus;
+import br.edu.ufape.alugafacil.enums.UserStatus;
 import br.edu.ufape.alugafacil.enums.UserType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import br.edu.ufape.alugafacil.exceptions.ResourceNotFoundException;
 import br.edu.ufape.alugafacil.exceptions.UserCpfDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserEmailDuplicadoException;
@@ -92,6 +96,9 @@ class UserServiceTest {
                 null,
                 "81999999999",
                 UserType.TENANT,
+                null,
+                UserStatus.ACTIVE,
+                0
                 null,
                 UserStatus.ACTIVE,
                 0
