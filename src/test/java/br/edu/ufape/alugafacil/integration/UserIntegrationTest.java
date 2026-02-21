@@ -6,6 +6,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+
 import br.edu.ufape.alugafacil.services.NotificationService;
 import br.edu.ufape.alugafacil.services.interfaces.IFileStorageService;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,9 +76,9 @@ class UserIntegrationTest {
         userService.saveUser(criarUserRequest("User 1", "u1@test.com", "111"));
         userService.saveUser(criarUserRequest("User 2", "u2@test.com", "222"));
 
-        List<UserResponse> users = userService.getAllUsers();
+        Page<UserResponse> page = userService.getAllUsers(PageRequest.of(0, 10));
 
-        assertThat(users).hasSize(2);
+        assertThat(page.getContent()).hasSize(2);
     }
 
     @Test

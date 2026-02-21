@@ -2,6 +2,9 @@ package br.edu.ufape.alugafacil.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -22,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import br.edu.ufape.alugafacil.dtos.notifications.FcmTokenRequest;
 import br.edu.ufape.alugafacil.dtos.user.UserRequest;
 import br.edu.ufape.alugafacil.dtos.user.UserResponse;
+import br.edu.ufape.alugafacil.enums.UserStatus;
 import br.edu.ufape.alugafacil.enums.UserType;
 import br.edu.ufape.alugafacil.services.interfaces.IUserService;
 
@@ -65,10 +69,11 @@ class UserControllerTest {
                 null,
                 "12345678900",
                 null,
-                "senha123",
                 "81999999999",
                 UserType.TENANT,
-                null
+                null,
+                UserStatus.ACTIVE,
+                0
         );
 
         when(userService.saveUser(any())).thenReturn(response);
@@ -93,18 +98,18 @@ class UserControllerTest {
                 null,
                 "98765432100",
                 null,
-                "senha123",
                 "81999999999",
                 UserType.TENANT,
-                null
+                null,
+                UserStatus.ACTIVE,
+                0
         );
 
-
-        when(userService.getAllUsers()).thenReturn(List.of(user));
+        when(userService.getAllUsers(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(user)));
 
         mockMvc.perform(get("/api/users"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("João"));
+                .andExpect(jsonPath("$.content[0].name").value("João"));
     }
 
     @Test
@@ -119,10 +124,11 @@ class UserControllerTest {
                 null,
                 "11122233344",
                 null,
-                "senha123",
                 "81999999999",
                 UserType.TENANT,
-                null
+                null,
+                UserStatus.ACTIVE,
+                0
         );
 
 
@@ -161,10 +167,11 @@ class UserControllerTest {
                 null,
                 "12345678900",
                 null,
-                "senha12343",
                 "81999999999",
                 UserType.TENANT,
-                null
+                null,
+                UserStatus.ACTIVE,
+                0
         );
 
         when(userService.updateUser(eq(id), any())).thenReturn(response);

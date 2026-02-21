@@ -21,4 +21,6 @@ public interface IPropertyService {
     void deleteProperty(UUID id);
     PropertyResponse addPhotos(UUID id, List<MultipartFile> files);
     void updateStatus(UUID id, PropertyStatusDTO dto);
+    void incrementViewCount(UUID propertyId);
+    List<PropertyResponse> getTop10ByViewCount();
 }
