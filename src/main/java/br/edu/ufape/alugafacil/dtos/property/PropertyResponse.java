@@ -29,5 +29,6 @@ public record PropertyResponse(
     PropertyStatus status,
     PropertyType type,
     UUID ownerId,
-    LocalDateTime createdAt
+    LocalDateTime createdAt,
+    Long viewCount
 ) {}

@@ -10,6 +10,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import br.edu.ufape.alugafacil.dtos.user.UserRequest;
 import br.edu.ufape.alugafacil.dtos.user.UserResponse;
+import br.edu.ufape.alugafacil.enums.UserStatus;
 import br.edu.ufape.alugafacil.enums.UserStatus;
 import br.edu.ufape.alugafacil.enums.UserType;
 import org.springframework.data.domain.Page;
@@ -90,6 +96,9 @@ class UserServiceTest {
                 null,
                 "81999999999",
                 UserType.TENANT,
+                null,
+                UserStatus.ACTIVE,
+                0
                 null,
                 UserStatus.ACTIVE,
                 0
@@ -166,13 +175,12 @@ class UserServiceTest {
     @DisplayName("Deve retornar todos os usuários")
     void shouldReturnAllUsers() {
         Pageable pageable = PageRequest.of(0, 10);
-        Page<User> userPage = new org.springframework.data.domain.PageImpl<>(List.of(user));
-        when(userRepository.findAll(pageable)).thenReturn(userPage);
+        when(userRepository.findAll(pageable)).thenReturn(new PageImpl<>(List.of(user)));
         when(userPropertyMapper.toResponse(user)).thenReturn(userResponse);
 
-        Page<UserResponse> result = userService.getAllUsers(pageable);
+        Page<UserResponse> page = userService.getAllUsers(pageable);
 
-        assertEquals(1, result.getContent().size());
+        assertEquals(1, page.getContent().size());
     }
 
     @Test

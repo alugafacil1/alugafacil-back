@@ -14,18 +14,21 @@ import org.springframework.stereotype.Repository;
 import br.edu.ufape.alugafacil.enums.PropertyStatus;
 import br.edu.ufape.alugafacil.models.Property;
 
-
 @Repository
-public interface PropertyRepository extends 
+public interface PropertyRepository extends
 		JpaRepository<Property, UUID>,
 		QuerydslPredicateExecutor<Property> {
 	List<Property> findByUserUserId(UUID userId);
+
 	@Query("SELECT COUNT(p) FROM Property p WHERE p.user.userId = :userId AND p.status = :status")
 	long countPropertiesByUser(@Param("userId") UUID userId, @Param("status") PropertyStatus status);
-	
+
 	@Modifying
 	@Query("UPDATE Property p SET p.status = 'PAUSED' WHERE p.user.id = :userId AND p.status = 'ACTIVE'")
 	void pauseActivePropertiesByUserId(@Param("userId") UUID userId);
+
+	List<Property> findTop10ByStatusOrderByViewCountDesc(PropertyStatus status);
+
 	
 	@Query("SELECT p FROM Property p WHERE p.status = :status ORDER BY p.createdAt DESC")
 	List<Property> findRecentProperties(@Param("status") PropertyStatus status, Pageable pageable);

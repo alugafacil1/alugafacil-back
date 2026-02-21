@@ -285,6 +285,22 @@ public class PropertyService implements IPropertyService {
 	    propertyRepository.save(property);
 	}
 
+    @Transactional
+    public void incrementViewCount(UUID propertyId) {
+    
+        Property property = propertyRepository.findById(propertyId)
+                .orElseThrow(() -> new RuntimeException("Não encontrado"));
+    
+        property.setViewCount(property.getViewCount() + 1);
+    }
+
+	@Override
+	public List<PropertyResponse> getTop10ByViewCount() {
+		return propertyRepository.findTop10ByStatusOrderByViewCountDesc(PropertyStatus.ACTIVE).stream()
+				.map(propertyMapper::toResponse)
+				.collect(Collectors.toList());
+	}
+
 	@Override
 	public List<PropertyResponse> getRecentProperties(int limit) {
 		Pageable pageable = PageRequest.of(0, limit);

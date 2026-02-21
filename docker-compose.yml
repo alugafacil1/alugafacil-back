@@ -13,13 +13,13 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/alugafacil
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost:8080/realms/alugafacil
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/alugafacil/protocol/openid-connect/certs
       
       KEYCLOAK_AUTH_SERVER_URL: http://keycloak:8080
       KEYCLOAK_REALM: alugafacil
       KEYCLOAK_RESOURCE: alugafacil-backend
-      KEYCLOAK_CREDENTIALS_SECRET: 0otAfyfxwy2BGLlr2xomdn3fjKFzTdJL
+      KEYCLOAK_CREDENTIALS_SECRET: M2a32UBa62AUi82pQmIdcmMO6G9fp21G
       KEYCLOAK_ADMIN_USERNAME: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
     depends_on:
@@ -43,6 +43,7 @@ services:
       KC_DB_USERNAME: postgres
       KC_DB_PASSWORD: password
       KC_HOSTNAME: localhost
+      KC_HOSTNAME_STRICT: "false"
       KC_HTTP_ENABLED: "true"
       KC_HEALTH_ENABLED: "true"
     command: start-dev
@@ -73,7 +74,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

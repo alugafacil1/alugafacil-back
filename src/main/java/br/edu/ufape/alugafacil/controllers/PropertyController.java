@@ -99,6 +99,17 @@ public class PropertyController {
 	    return ResponseEntity.noContent().build();
 	}
 
+	@PostMapping("/{id}/view")
+	public ResponseEntity<Void> incrementView(@PathVariable UUID id) {
+		propertyService.incrementViewCount(id);
+		return ResponseEntity.noContent().build();
+	}
+
+	@GetMapping("/top-by-views")
+	public ResponseEntity<List<PropertyResponse>> topByViews() {
+		return ResponseEntity.ok(propertyService.getTop10ByViewCount());
+	}
+
 	@GetMapping("/recent")
 	public ResponseEntity<List<PropertyResponse>> getRecentProperties(
 			@RequestParam(defaultValue = "20") int limit) {
