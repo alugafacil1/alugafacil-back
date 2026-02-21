@@ -105,50 +105,46 @@ public class PropertyService implements IPropertyService {
      * @Async garante que não trave a resposta da API.
      */
     @Async 
-    protected void notifyInterestedUsers(Property property) {
-        Integer garageCount = (property.getGarage() != null && property.getGarage()) ? 1 : 0;
-        Double lat = (property.getGeolocation() != null) ? property.getGeolocation().getLatitude() : null;
-        Double lon = (property.getGeolocation() != null) ? property.getGeolocation().getLongitude() : null;
-        String city = (property.getAddress() != null) ? property.getAddress().getCity() : null;
-        String neighborhood = (property.getAddress() != null) ? property.getAddress().getNeighborhood() : null;
-        
-        
-        String state = (property.getAddress() != null) ? property.getAddress().getState() : null;
-        List<String> amenities = property.getAmenities();
-        List<String> houseRules = property.getHouseRules();
+protected void notifyInterestedUsers(Property property) {
+    // 1. Extração segura dos dados da entidade Property
+    Integer garageCount = (property.getGarage() != null && property.getGarage()) ? 1 : 0;
+    Double lat = (property.getGeolocation() != null) ? property.getGeolocation().getLatitude() : null;
+    Double lon = (property.getGeolocation() != null) ? property.getGeolocation().getLongitude() : null;
+    String city = (property.getAddress() != null) ? property.getAddress().getCity() : null;
+    String neighborhood = (property.getAddress() != null) ? property.getAddress().getNeighborhood() : null;
+    String state = (property.getAddress() != null) ? property.getAddress().getState() : null;
 
-        List<UserSearchPreference> matches = preferenceRepository.findMatchingPreferences(
-            property.getPriceInCents(),
-            property.getNumberOfBedrooms(),
-            property.getNumberOfBathrooms(),
-            garageCount,
-            property.getFurnished(),
-            property.getPetFriendly(),
-            city,
-            neighborhood,
-            state,       
-            lat,
-            lon,
-            amenities,   
-            houseRules   
-        );
+    // 2. Busca usando os dados extraídos do objeto property (e não do request)
+    List<UserSearchPreference> matches = preferenceRepository.findMatchingPreferences(
+        property.getPriceInCents(),
+        property.getNumberOfBedrooms(),
+        property.getNumberOfBathrooms(),
+        garageCount, 
+        property.getFurnished(),
+        property.getPetFriendly(),
+        city,
+        neighborhood,
+        state,
+        lat,
+        lon
+    );
 
-        for (UserSearchPreference preference : matches) {
-            
-            if (property.getUser() != null && preference.getUser().getUserId().equals(property.getUser().getUserId())) {
-                continue;
-            }
-
-            
-            notificationService.notifyListingMatch(
-                preference.getUser().getUserId(),
-                property.getPropertyId(), 
-                preference.getName()
-            );
+    // 3. Envio das notificações
+    for (UserSearchPreference preference : matches) {
+        // Evita notificar o próprio dono do imóvel
+        if (property.getUser() != null && preference.getUser().getUserId().equals(property.getUser().getUserId())) {
+            continue;
         }
-        log.info("Notificações enviadas para {} usuários interessados.", matches.size());
-    }
 
+        notificationService.notifyListingMatch(
+            preference.getUser().getUserId(),
+            property.getPropertyId(), 
+            preference.getName()
+        );
+    }
+    
+    log.info("Notificações enviadas para {} usuários interessados.", matches.size());
+}
     @Override
     public PropertyResponse getPropertyById(UUID id) {
         Property property = propertyRepository.findById(id)

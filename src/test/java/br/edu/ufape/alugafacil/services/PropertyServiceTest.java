@@ -147,7 +147,7 @@ class PropertyServiceTest {
         
 
         lenient().when(preferenceRepository.findMatchingPreferences(
-            any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+            any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
         )).thenReturn(Collections.emptyList());
 
         PropertyResponse resultado = propertyService.createProperty(request);
