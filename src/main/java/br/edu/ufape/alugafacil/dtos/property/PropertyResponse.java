@@ -1,5 +1,6 @@
 package br.edu.ufape.alugafacil.dtos.property;
 
+import java.time.LocalDate; 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +17,13 @@ public record PropertyResponse(
     AddressResponse address,
     GeolocationResponse geolocation,
     Integer priceInCents,
+    
+    Integer weeklyRentInCents,
+    Integer securityDepositInCents,
+    Integer minimumLeaseMonths,
+    Integer maxOccupants,
+    LocalDate availableFrom,
+    
     Integer numberOfRooms,
     Integer numberOfBedrooms,
     Integer numberOfBathrooms,

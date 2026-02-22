@@ -1,5 +1,6 @@
 package br.edu.ufape.alugafacil.models;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -9,10 +10,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
-
-
-
 
 import br.edu.ufape.alugafacil.enums.PropertyStatus;
 import br.edu.ufape.alugafacil.enums.PropertyType;
@@ -55,6 +52,22 @@ public class Property {
     private Geolocation geolocation;
 
     private Integer priceInCents;
+    
+    @Column(name = "weekly_rent_in_cents")
+    private Integer weeklyRentInCents;
+    
+    @Column(name = "security_deposit_in_cents")
+    private Integer securityDepositInCents;
+    
+    @Column(name = "minimum_lease_months")
+    private Integer minimumLeaseMonths;
+    
+    @Column(name = "max_occupants")
+    private Integer maxOccupants;
+    
+    @Column(name = "available_from")
+    private LocalDate availableFrom;
+
     private Integer numberOfRooms;
     private Integer numberOfBedrooms;
     private Integer numberOfBathrooms;

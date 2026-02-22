@@ -3,17 +3,11 @@ package br.edu.ufape.alugafacil.services;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,15 +16,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import br.edu.ufape.alugafacil.dtos.user.UserRequest;
 import br.edu.ufape.alugafacil.dtos.user.UserResponse;
-import br.edu.ufape.alugafacil.enums.UserStatus;
-import br.edu.ufape.alugafacil.enums.UserStatus;
 import br.edu.ufape.alugafacil.enums.UserType;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import br.edu.ufape.alugafacil.exceptions.ResourceNotFoundException;
 import br.edu.ufape.alugafacil.exceptions.UserCpfDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserEmailDuplicadoException;
@@ -87,27 +80,19 @@ class UserServiceTest {
                 null
         );
 
-        userResponse = new UserResponse(
-                userId,
-                "Maria Silva",
-                "user@email.com",
-                null,
-                "12345678900",
-                null,
-                "81999999999",
-                UserType.TENANT,
-                null,
-                UserStatus.ACTIVE,
-                0
-                null,
-                UserStatus.ACTIVE,
-                0
-        );
+        // Usando mock para o Response evita quebrar o teste se o Record mudar no futuro
+        userResponse = mock(UserResponse.class);
+        lenient().when(userResponse.userId()).thenReturn(userId);
+        lenient().when(userResponse.name()).thenReturn("Maria Silva");
     }
 
     @Test
     @DisplayName("Deve salvar usuário com sucesso (Happy Path)")
     void shouldSaveUserSuccessfully() {
+        // Mocks necessários para passar nas validações de duplicidade
+        when(userRepository.findUserByCpf(anyString())).thenReturn(Optional.empty());
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+
         when(userPropertyMapper.toEntity(userRequest)).thenReturn(user);
         when(userRepository.save(user)).thenReturn(user);
         when(userPropertyMapper.toResponse(user)).thenReturn(userResponse);
