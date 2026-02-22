@@ -20,7 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import br.edu.ufape.alugafacil.dtos.subscription.SubscriptionRequestDTO;
 import br.edu.ufape.alugafacil.dtos.subscription.SubscriptionResponseDTO;
 import br.edu.ufape.alugafacil.enums.PaymentStatus;
-import br.edu.ufape.alugafacil.enums.SubscriptionStatus;
+
 import br.edu.ufape.alugafacil.enums.UserType;
 import br.edu.ufape.alugafacil.mappers.SubscriptionMapper;
 import br.edu.ufape.alugafacil.models.Plan;

@@ -10,6 +10,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
+
+
+
+
 import br.edu.ufape.alugafacil.enums.PropertyStatus;
 import br.edu.ufape.alugafacil.enums.PropertyType;
 import jakarta.persistence.Column;
@@ -65,6 +69,14 @@ public class Property {
 
     @ElementCollection
     private List<String> photoUrls;
+
+    @ElementCollection
+    @Column(name = "amenity") 
+    private List<String> amenities;
+
+    @ElementCollection
+    @Column(name = "house_rule") 
+    private List<String> houseRules;
 
     @Enumerated(EnumType.STRING)
     private PropertyStatus status;

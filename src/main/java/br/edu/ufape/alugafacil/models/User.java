@@ -10,7 +10,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+
 import br.edu.ufape.alugafacil.enums.UserStatus;
+
 import br.edu.ufape.alugafacil.enums.UserType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

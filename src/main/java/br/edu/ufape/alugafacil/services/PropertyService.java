@@ -23,9 +23,11 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import br.edu.ufape.alugafacil.dtos.property.PropertyFilterRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyResponse;
-import br.edu.ufape.alugafacil.dtos.property.PropertyStatusDTO;
-import br.edu.ufape.alugafacil.enums.PropertyStatus;
+
 import br.edu.ufape.alugafacil.enums.PaymentStatus;
+import br.edu.ufape.alugafacil.enums.PropertyStatus;
+import br.edu.ufape.alugafacil.dtos.property.PropertyStatusDTO;
+
 import br.edu.ufape.alugafacil.mappers.PropertyMapper;
 import br.edu.ufape.alugafacil.models.Plan;
 import br.edu.ufape.alugafacil.models.Property;
@@ -103,40 +105,46 @@ public class PropertyService implements IPropertyService {
      * @Async garante que não trave a resposta da API.
      */
     @Async 
-    protected void notifyInterestedUsers(Property property) {
-        Integer garageCount = (property.getGarage() != null && property.getGarage()) ? 1 : 0;
-        Double lat = (property.getGeolocation() != null) ? property.getGeolocation().getLatitude() : null;
-        Double lon = (property.getGeolocation() != null) ? property.getGeolocation().getLongitude() : null;
-        String city = (property.getAddress() != null) ? property.getAddress().getCity() : null;
-        String neighborhood = (property.getAddress() != null) ? property.getAddress().getNeighborhood() : null;
+protected void notifyInterestedUsers(Property property) {
+    // 1. Extração segura dos dados da entidade Property
+    Integer garageCount = (property.getGarage() != null && property.getGarage()) ? 1 : 0;
+    Double lat = (property.getGeolocation() != null) ? property.getGeolocation().getLatitude() : null;
+    Double lon = (property.getGeolocation() != null) ? property.getGeolocation().getLongitude() : null;
+    String city = (property.getAddress() != null) ? property.getAddress().getCity() : null;
+    String neighborhood = (property.getAddress() != null) ? property.getAddress().getNeighborhood() : null;
+    String state = (property.getAddress() != null) ? property.getAddress().getState() : null;
 
-        List<UserSearchPreference> matches = preferenceRepository.findMatchingPreferences(
-            property.getPriceInCents(),
-            property.getNumberOfBedrooms(),
-            property.getNumberOfBathrooms(),
-            garageCount,
-            property.getFurnished(),
-            property.getPetFriendly(),
-            city,
-            neighborhood,
-            lat,
-            lon
-        );
+    // 2. Busca usando os dados extraídos do objeto property (e não do request)
+    List<UserSearchPreference> matches = preferenceRepository.findMatchingPreferences(
+        property.getPriceInCents(),
+        property.getNumberOfBedrooms(),
+        property.getNumberOfBathrooms(),
+        garageCount, 
+        property.getFurnished(),
+        property.getPetFriendly(),
+        city,
+        neighborhood,
+        state,
+        lat,
+        lon
+    );
 
-        for (UserSearchPreference preference : matches) {
-            if (property.getUser() != null && preference.getUser().getUserId().equals(property.getUser().getUserId())) {
-                continue;
-            }
-
-            notificationService.notifyListingMatch(
-                preference.getUser().getUserId(),
-                property.getPropertyId(), 
-                preference.getName()
-            );
+    // 3. Envio das notificações
+    for (UserSearchPreference preference : matches) {
+        // Evita notificar o próprio dono do imóvel
+        if (property.getUser() != null && preference.getUser().getUserId().equals(property.getUser().getUserId())) {
+            continue;
         }
-        log.info("Notificações enviadas para {} usuários interessados.", matches.size());
-    }
 
+        notificationService.notifyListingMatch(
+            preference.getUser().getUserId(),
+            property.getPropertyId(), 
+            preference.getName()
+        );
+    }
+    
+    log.info("Notificações enviadas para {} usuários interessados.", matches.size());
+}
     @Override
     public PropertyResponse getPropertyById(UUID id) {
         Property property = propertyRepository.findById(id)
@@ -157,8 +165,10 @@ public class PropertyService implements IPropertyService {
                     .map(GrantedAuthority::getAuthority)
                     .anyMatch(role -> role.equals("ROLE_ADMIN") || role.equals("ADMIN"));
         }
-  
+
+
         if (filters != null) {
+            // --- Geolocalização ---
             if (filters.getLat() != null && filters.getLon() != null && filters.getRadius() != null) {
                 NumberExpression<Double> dbLat = qProperty.geolocation.latitude;
                 NumberExpression<Double> dbLon = qProperty.geolocation.longitude;
@@ -172,6 +182,8 @@ public class PropertyService implements IPropertyService {
                 );
                 builder.and(distanceExpression.loe(filters.getRadius()));
             }
+
+            // --- Filtros Básicos ---
             if (filters.getMinPrice() != null) builder.and(qProperty.priceInCents.goe(filters.getMinPrice() * 100));
             if (filters.getMaxPrice() != null) builder.and(qProperty.priceInCents.loe(filters.getMaxPrice() * 100));
             if (filters.getMinRooms() != null) builder.and(qProperty.numberOfRooms.goe(filters.getMinRooms()));
@@ -180,26 +192,46 @@ public class PropertyService implements IPropertyService {
             if (filters.getPetFriendly() != null) builder.and(qProperty.petFriendly.eq(filters.getPetFriendly()));
             if (filters.getType() != null) builder.and(qProperty.type.eq(filters.getType()));
             
+            // --- Status ---
             if (filters.getStatus() != null) {
                 builder.and(qProperty.status.eq(filters.getStatus()));
             } else {
-            	if (!isAdmin) {
-            		builder.and(qProperty.status.eq(PropertyStatus.ACTIVE));            		
-            	}
-            }
+                if (!isAdmin) {
+                    builder.and(qProperty.status.eq(PropertyStatus.ACTIVE));                    
+                }
 
+            }
+            
             if (filters.getCity() != null && !filters.getCity().isEmpty()) {
                 builder.and(qProperty.address.city.containsIgnoreCase(filters.getCity()));
             }
             if (filters.getNeighborhood() != null && !filters.getNeighborhood().isEmpty()) {
                 builder.and(qProperty.address.neighborhood.containsIgnoreCase(filters.getNeighborhood()));
             }
+            
+            if (filters.getState() != null && !filters.getState().isEmpty()) {
+                builder.and(qProperty.address.state.containsIgnoreCase(filters.getState()));
+            }
+
+            if (filters.getAmenities() != null && !filters.getAmenities().isEmpty()) {
+                for (String amenity : filters.getAmenities()) {
+                    builder.and(qProperty.amenities.any().containsIgnoreCase(amenity));
+                }
+            }
+
+            
+            if (filters.getHouseRules() != null && !filters.getHouseRules().isEmpty()) {
+                for (String rule : filters.getHouseRules()) {
+                    builder.and(qProperty.houseRules.any().containsIgnoreCase(rule));
+                }
+            }
         }
+        
         
         Page<Property> pageResult = propertyRepository.findAll((Predicate) builder, pageable);
         return pageResult.map(propertyMapper::toResponse);
     }
-
+    
     @Override
     public List<PropertyResponse> getPropertiesByUserId(UUID userId) {
         return propertyRepository.findByUserUserId(userId).stream()

@@ -16,8 +16,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import br.edu.ufape.alugafacil.auth.KeycloakJwtAuthenticationConverter;
 
-import org.springframework.security.config.Customizer;
-
 import java.util.Arrays;
 
 @Configuration
@@ -26,9 +24,9 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     @Autowired
-	private KeycloakJwtAuthenticationConverter keycloakJwtAuthenticationConverter;
+    private KeycloakJwtAuthenticationConverter keycloakJwtAuthenticationConverter;
 
-    @Value("${common.front:http://localhost:3000}")
+    @Value("${common.front:http://localhost:3000,http://localhost:3001}")
     private String allowedOrigins;
 
     @Bean
@@ -48,12 +46,11 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2ResourceServer ->
-						oauth2ResourceServer.jwt((jwt) -> jwt
-								.jwtAuthenticationConverter(keycloakJwtAuthenticationConverter)
-						)
-				)
-				.cors(Customizer.withDefaults())
-        ;
+                        oauth2ResourceServer.jwt((jwt) -> jwt
+                                .jwtAuthenticationConverter(keycloakJwtAuthenticationConverter)
+                        )
+            );
+            
 
         return http.build();
     }
@@ -62,7 +59,11 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
+        
         configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
+
+configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:3001"));
+
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
         configuration.setAllowCredentials(true);

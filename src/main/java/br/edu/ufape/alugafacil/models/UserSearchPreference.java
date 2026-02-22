@@ -37,6 +37,10 @@ public class UserSearchPreference {
     private Boolean furnished;
     private String city;
     private String neighborhood;
+    
+    @Column(name = "state")
+    private String state; 
+
     private Integer searchRadiusInMeters;
     private Integer garageCount;
 

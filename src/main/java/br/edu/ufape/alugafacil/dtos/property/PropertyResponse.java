@@ -26,6 +26,8 @@ public record PropertyResponse(
     String videoUrl,
     String phoneNumber,
     List<String> photoUrls,
+    List<String> amenities,
+    List<String> houseRules,
     PropertyStatus status,
     PropertyType type,
     UUID ownerId,

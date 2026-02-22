@@ -13,6 +13,9 @@ public record AddressRequest(
     @NotBlank(message = "A cidade é obrigatória")
     String city,
 
+    @NotBlank(message = "O estado é obrigatório")
+    String state,
+
     @NotBlank(message = "O CEP é obrigatório")
     @Pattern(regexp = "\\d{5}-\\d{3}", message = "CEP inválido") 
     String postalCode,

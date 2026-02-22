@@ -57,6 +57,10 @@ public record PropertyRequest(
 
     List<String> photoUrls,
 
+    List<String> amenities,
+
+    List<String> houseRules,
+
     PropertyStatus status,
 
     @NotNull(message = "O tipo do imóvel é obrigatório")
