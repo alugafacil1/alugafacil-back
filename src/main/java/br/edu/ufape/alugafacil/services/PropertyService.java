@@ -245,6 +245,16 @@ protected void notifyInterestedUsers(Property property) {
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Imóvel não encontrado"));
 
+        if (property.getPhotoUrls() != null && !property.getPhotoUrls().isEmpty()) {
+            List<String> fotosMantidas = request.photoUrls() != null ? request.photoUrls() : new ArrayList<>();
+            
+            for (String fotoAntiga : property.getPhotoUrls()) {
+                if (!fotosMantidas.contains(fotoAntiga)) {
+                    fileStorageService.deleteFile(fotoAntiga);
+                }
+            }
+        }
+
         Plan plan = getUserActivePlan(property.getUser());
 
         if (request.videoUrl() != null && !request.videoUrl().isBlank() && !plan.getHasVideo()) {
@@ -266,11 +276,19 @@ protected void notifyInterestedUsers(Property property) {
     }
 
     @Override
+    @Transactional
     public void deleteProperty(UUID id) {
-        if (!propertyRepository.existsById(id)) {
-            throw new RuntimeException("Imóvel não encontrado");
+
+        Property property = propertyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Imóvel não encontrado"));
+
+        if (property.getPhotoUrls() != null) {
+            for (String photoUrl : property.getPhotoUrls()) {
+                fileStorageService.deleteFile(photoUrl);
+            }
         }
-        propertyRepository.deleteById(id);
+
+        propertyRepository.delete(property);
     }
 
     @Override

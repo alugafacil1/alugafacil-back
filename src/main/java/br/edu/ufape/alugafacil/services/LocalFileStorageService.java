@@ -42,10 +42,25 @@ public class LocalFileStorageService implements IFileStorageService {
 		}	}
 
 	@Override
-	public void deleteFile(String fileUrl) {
-		// TO DO
-		
-	}
+    public void deleteFile(String fileUrl) {
+        if (fileUrl == null || fileUrl.isEmpty()) {
+            return;
+        }
+
+        try {
+
+            String fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+            
+            Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
+
+            Files.deleteIfExists(filePath);
+            
+            System.out.println("Arquivo deletado com sucesso: " + fileName);
+        } catch (IOException e) {
+            System.err.println("Não foi possível deletar o arquivo: " + fileUrl);
+            e.printStackTrace();
+        }
+    }
 	
 	
 }
