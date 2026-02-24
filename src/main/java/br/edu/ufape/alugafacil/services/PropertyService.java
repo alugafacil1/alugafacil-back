@@ -77,20 +77,20 @@ public class PropertyService implements IPropertyService {
         User owner = userRepository.findById(request.userId())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + request.userId()));
         
-        Plan plan = getUserActivePlan(owner);
-        long currentProperties = propertyRepository.countPropertiesByUser(owner.getUserId(), PropertyStatus.ACTIVE);
+        // Plan plan = getUserActivePlan(owner);
+        // long currentProperties = propertyRepository.countPropertiesByUser(owner.getUserId(), PropertyStatus.ACTIVE);
         
-        if (currentProperties >= plan.getPropertiesCount()) {
-            throw new RuntimeException("Upgrade necessário! Seu plano permite apenas " + plan.getPropertiesCount() + " imóveis.");
-        }
+        // if (currentProperties >= plan.getPropertiesCount()) {
+        //     throw new RuntimeException("Upgrade necessário! Seu plano permite apenas " + plan.getPropertiesCount() + " imóveis.");
+        // }
         
-        if (request.videoUrl() != null && !request.videoUrl().isEmpty() && !plan.getHasVideo()) {
-            throw new RuntimeException("Seu plano atual não permite adicionar vídeos ao anúncio.");
-        }
+        // if (request.videoUrl() != null && !request.videoUrl().isEmpty() && !plan.getHasVideo()) {
+        //     throw new RuntimeException("Seu plano atual não permite adicionar vídeos ao anúncio.");
+        // }
         
         Property property = propertyMapper.toEntity(request);
         property.setUser(owner);
-        property.setIsPriority(plan.getIsPriority()); 
+        // property.setIsPriority(plan.getIsPriority()); 
         property.setStatus(PropertyStatus.ACTIVE);
 
         Property savedProperty = propertyRepository.save(property);
