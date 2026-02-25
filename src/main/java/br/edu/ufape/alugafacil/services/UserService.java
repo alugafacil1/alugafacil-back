@@ -21,8 +21,8 @@ import br.edu.ufape.alugafacil.exceptions.ResourceNotFoundException;
 import br.edu.ufape.alugafacil.exceptions.UserCpfDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserEmailDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserNotFoundException;
-import br.edu.ufape.alugafacil.mappers.RealStateAgencyPropertyMapper;
-import br.edu.ufape.alugafacil.mappers.UserPropertyMapper;
+import br.edu.ufape.alugafacil.mappers.RealStateAgencyMapper;
+import br.edu.ufape.alugafacil.mappers.UserMapper;
 import br.edu.ufape.alugafacil.models.RealStateAgency;
 import br.edu.ufape.alugafacil.models.User;
 import br.edu.ufape.alugafacil.repositories.PropertyRepository;
@@ -35,8 +35,8 @@ import lombok.RequiredArgsConstructor;
 public class UserService implements IUserService {
 
     private final UserRepository userRepository;
-    private final UserPropertyMapper userPropertyMapper;
-    private final RealStateAgencyPropertyMapper agencyMapper;
+    private final UserMapper userPropertyMapper;
+    private final RealStateAgencyMapper agencyMapper;
     private final SubscriptionService subscriptionService;
     private final Path fileStorageLocation = Paths.get("uploads").toAbsolutePath().normalize();
     private final PropertyRepository propertyRepository;
@@ -55,7 +55,7 @@ public class UserService implements IUserService {
 
         User savedUser = userRepository.save(user);
 
-        subscriptionService.createInitialFreeSubscription(savedUser);
+        // subscriptionService.createInitialFreeSubscription(savedUser);
 
         return userPropertyMapper.toResponse(savedUser);
     }

@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,10 +18,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.edu.ufape.alugafacil.dtos.realStateAgency.MemberResponse;
 import br.edu.ufape.alugafacil.dtos.realStateAgency.RealStateAgencyRequest;
 import br.edu.ufape.alugafacil.dtos.realStateAgency.RealStateAgencyResponse;
 import br.edu.ufape.alugafacil.dtos.realStateAgency.TransferRequest;
+import br.edu.ufape.alugafacil.dtos.user.RealtorRegistrationRequest;
 import br.edu.ufape.alugafacil.services.RealStateAgencyService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -54,11 +58,24 @@ public class RealStateAgencyController {
         }
     }
     
-    @PostMapping
-    public ResponseEntity<RealStateAgencyResponse> createRealStateAgency(@RequestBody RealStateAgencyRequest realStateAgencyRequest) {
+    @PostMapping("/register")
+    public ResponseEntity<RealStateAgencyResponse> createRealStateAgency(
+            @Valid @RequestBody RealStateAgencyRequest realStateAgencyRequest) {
         try {
-            RealStateAgencyResponse response = realStateAgencyService.createRealStateAgency(realStateAgencyRequest);
-            return ResponseEntity.ok(response);
+            RealStateAgencyResponse response = realStateAgencyService.registerAgencyWithAdmin(realStateAgencyRequest);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    @PostMapping("/members/register")
+    public ResponseEntity<MemberResponse> registerRealtor(
+            @Valid @RequestBody RealtorRegistrationRequest request,
+            @RequestHeader("X-User-Id") UUID loggedUserId) {
+        try {
+            MemberResponse response = realStateAgencyService.registerRealtor(request, loggedUserId);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }

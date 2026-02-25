@@ -1,31 +1,35 @@
 package br.edu.ufape.alugafacil.dtos.user;
 
-import java.util.List;
-
-import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
-import br.edu.ufape.alugafacil.dtos.realStateAgency.RealStateAgencyRequest;
 import br.edu.ufape.alugafacil.enums.UserType;
-import br.edu.ufape.alugafacil.models.Subscription;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public record UserRequest (
+        
         @NotBlank(message = "O nome é obrigatório")
         String name,
-        @NotBlank(message = "O email é obrigatório")
+        
+        @NotBlank(message = "O e-mail é obrigatório")
+        @Email(message = "O formato do e-mail é inválido")
         String email,
-        String photoUrl,
-        @NotBlank(message = "O cpf é obrigatório")
-        String cpf,
-        String creciNumber,
-        @NotBlank(message = "O senha é obrigatória")
+        
+        @NotBlank(message = "A senha é obrigatória")
+        @Size(min = 4, message = "A senha deve ter no mínimo 6 caracteres")
         String password,
-        @NotBlank(message = "O telefone é obrigatória")
+        
+        @NotBlank(message = "O CPF é obrigatório")
+        String cpf,
+        
+        @NotBlank(message = "O telefone é obrigatório")
         String phoneNumber,
-        @NotNull(message = "É obrigatório selecionar o tipo de usuário ")
+        
+        @NotNull(message = "É obrigatório selecionar o tipo de usuário")
         UserType userType,
-        RealStateAgencyRequest agency,
-        List<PropertyRequest> properties,
-        List<Subscription> subscriptions,
+
+        String photoUrl,
+        String creciNumber,
         String fcmToken
-) { }
+        
+) {}

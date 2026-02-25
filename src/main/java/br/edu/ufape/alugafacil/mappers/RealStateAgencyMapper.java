@@ -11,7 +11,7 @@ import br.edu.ufape.alugafacil.models.RealStateAgency;
 import br.edu.ufape.alugafacil.models.User;
 
 @Mapper(componentModel = "spring")
-public interface RealStateAgencyPropertyMapper {
+public interface RealStateAgencyMapper {
 
     @Mapping(target = "agencyId", ignore = true)
     @Mapping(target = "user", ignore = true)
@@ -20,6 +20,7 @@ public interface RealStateAgencyPropertyMapper {
     @Mapping(target = "updatedAt", ignore = true)
     RealStateAgency toEntity(RealStateAgencyRequest request);
 
+    @Mapping(target = "user.agency", ignore = true) 
     RealStateAgencyResponse toResponse(RealStateAgency realStateAgency);
 
     MemberResponse toMemberResponse(User user);
