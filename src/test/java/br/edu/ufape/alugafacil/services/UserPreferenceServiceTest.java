@@ -62,13 +62,10 @@ class UserPreferenceServiceTest {
         UserRequest userRequest = new UserRequest(
                 "Usuário Teste",
                 "teste@email.com",
-                null,
-                "00000000000",
-                null,
                 "123456",
+                "00000000000",
                 "81999999999",
                 UserType.TENANT,
-                null,
                 null,
                 null,
                 null
@@ -86,6 +83,7 @@ class UserPreferenceServiceTest {
                 5000,
                 1,
                 geolocationRequest,
+                null,
                 userRequest
         );
 

@@ -1,5 +1,6 @@
 package br.edu.ufape.alugafacil.services;
 
+import br.edu.ufape.alugafacil.dtos.user.UserResponse;
 import br.edu.ufape.alugafacil.dtos.userPreferences.UserPreferenceRequest;
 import br.edu.ufape.alugafacil.dtos.userPreferences.UserPreferenceResponse;
 import br.edu.ufape.alugafacil.exceptions.UserNotFoundException;
@@ -12,8 +13,10 @@ import br.edu.ufape.alugafacil.models.UserSearchPreference;
 import br.edu.ufape.alugafacil.repositories.UserRepository;
 import br.edu.ufape.alugafacil.repositories.UserSearchPreferenceRepository;
 import br.edu.ufape.alugafacil.services.interfaces.IUserPreferenceService;
+import br.edu.ufape.alugafacil.services.interfaces.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,20 +31,40 @@ public class UserPreferenceService implements IUserPreferenceService {
     private final UserSearchPreferenceMapper userSearchPreferenceMapper;
     private final UserMapper userPropertyMapper;
     private final UserRepository userRepository;
+    private final IUserService userService;
 
     @Override
+    @Transactional
     public UserPreferenceResponse save(UserPreferenceRequest userPreferenceRequest) throws Exception {
 
         UserSearchPreference preference = this.userSearchPreferenceMapper.toEntity(userPreferenceRequest);
 
-        User user = this.userPropertyMapper.toEntity(userPreferenceRequest.user());
+        User user;
+        
+        // CAMINHO 1: Se userId foi fornecido, busca o usuário existente
+        if (userPreferenceRequest.userId() != null) {
+            user = this.userRepository.findById(userPreferenceRequest.userId())
+                    .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com o ID: " + userPreferenceRequest.userId()));
+        } 
+        // CAMINHO 2: Se userId não foi fornecido, cria um novo usuário
+        else {
+            if (userPreferenceRequest.user() == null) {
+                throw new IllegalArgumentException("É necessário fornecer 'userId' ou 'user' para criar a preferência");
+            }
+            UserResponse userResponse = userService.saveUser(userPreferenceRequest.user());
+            user = this.userRepository.findById(userResponse.userId())
+                    .orElseThrow(() -> new UserNotFoundException("Erro ao recuperar usuário criado"));
+        }
 
-        Geolocation geolocation = Geolocation.builder()
-                .latitude(userPreferenceRequest.searchCenter().latitude())
-                .longitude(userPreferenceRequest.searchCenter().longitude())
-                .build();
+        if (userPreferenceRequest.searchCenter() != null) {
+            Geolocation geolocation = Geolocation.builder()
+                    .latitude(userPreferenceRequest.searchCenter().latitude())
+                    .longitude(userPreferenceRequest.searchCenter().longitude())
+                    .build();
+            preference.setSearchCenter(geolocation);
+        }
+        
         preference.setUser(user);
-        preference.setSearchCenter(geolocation);
 
         UserSearchPreference save = this.userSearchPreferenceRepository.save(preference);
 
@@ -50,7 +73,7 @@ public class UserPreferenceService implements IUserPreferenceService {
     }
 
     @Override
-    public List<UserPreferenceResponse> getAllPreference(UUID idUser) throws  UserNotFoundException {
+    public List<UserPreferenceResponse> getAllPreference(UUID idUser) throws UserNotFoundException {
 
         Optional<User> byId = this.userRepository.findById(idUser);
 
@@ -61,8 +84,8 @@ public class UserPreferenceService implements IUserPreferenceService {
 
         List<UserPreferenceResponse> preferenceResponses = new ArrayList<>();
 
-        if (preferences!=null && !preferences.isEmpty()) {
-          preferenceResponses =  preferences.stream()
+        if (preferences != null && !preferences.isEmpty()) {
+            preferenceResponses = preferences.stream()
                     .map(this.userSearchPreferenceMapper::toResponse)
                     .toList();
         }
@@ -83,7 +106,8 @@ public class UserPreferenceService implements IUserPreferenceService {
     }
 
     @Override
-    public UserPreferenceResponse updatePreference(UUID id, UserPreferenceRequest userPreferenceRequest) throws Exception {
+    public UserPreferenceResponse updatePreference(UUID id, UserPreferenceRequest userPreferenceRequest)
+            throws Exception {
 
         Optional<UserSearchPreference> byId = this.userSearchPreferenceRepository.findById(id);
 
@@ -95,14 +119,31 @@ public class UserPreferenceService implements IUserPreferenceService {
 
         this.userSearchPreferenceMapper.updateEntityFromRequest(userPreferenceRequest, userSearchPreference);
 
-        User user = this.userPropertyMapper.toEntity(userPreferenceRequest.user());
+        User user;
+        
+        // CAMINHO 1: Se userId foi fornecido, busca o usuário existente
+        if (userPreferenceRequest.userId() != null) {
+            user = this.userRepository.findById(userPreferenceRequest.userId())
+                    .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com o ID: " + userPreferenceRequest.userId()));
+        } 
+        // CAMINHO 2: Se userId não foi fornecido, cria um novo usuário
+        else {
+            if (userPreferenceRequest.user() == null) {
+                throw new IllegalArgumentException("É necessário fornecer 'userId' ou 'user' para atualizar a preferência");
+            }
+            UserResponse userResponse = userService.saveUser(userPreferenceRequest.user());
+            user = this.userRepository.findById(userResponse.userId())
+                    .orElseThrow(() -> new UserNotFoundException("Erro ao recuperar usuário criado"));
+        }
 
-        Geolocation geolocation = Geolocation.builder()
-                .latitude(userPreferenceRequest.searchCenter().latitude())
-                .longitude(userPreferenceRequest.searchCenter().longitude())
-                .build();
-
-        userSearchPreference.setSearchCenter(geolocation);
+        if (userPreferenceRequest.searchCenter() != null) {
+            Geolocation geolocation = Geolocation.builder()
+                    .latitude(userPreferenceRequest.searchCenter().latitude())
+                    .longitude(userPreferenceRequest.searchCenter().longitude())
+                    .build();
+            userSearchPreference.setSearchCenter(geolocation);
+        }
+        
         userSearchPreference.setUser(user);
 
         UserSearchPreference update = this.userSearchPreferenceRepository.save(userSearchPreference);

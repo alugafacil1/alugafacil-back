@@ -132,13 +132,10 @@ class UserIntegrationTest {
         return new UserRequest(
                 nome,
                 email,
-                null,
-                cpf,
-                null,
                 "123456",
+                cpf,
                 "81999999999",
                 UserType.TENANT,
-                null,
                 null,
                 null,
                 null

@@ -59,6 +59,7 @@ class UserSearchPreferenceControllerTest {
                 5000,
                 1,
                 null,
+                null,
                 null
         );
 
@@ -179,6 +180,7 @@ class UserSearchPreferenceControllerTest {
                 "Pina",
                 2000,
                 2,
+                null,
                 null,
                 null
         );
