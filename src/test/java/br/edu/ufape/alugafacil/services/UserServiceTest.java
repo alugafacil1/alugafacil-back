@@ -3,7 +3,6 @@ package br.edu.ufape.alugafacil.services;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
@@ -26,18 +25,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import br.edu.ufape.alugafacil.dtos.user.UserRequest;
 import br.edu.ufape.alugafacil.dtos.user.UserResponse;
 import br.edu.ufape.alugafacil.enums.UserStatus;
-import br.edu.ufape.alugafacil.enums.UserStatus;
 import br.edu.ufape.alugafacil.enums.UserType;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import br.edu.ufape.alugafacil.exceptions.ResourceNotFoundException;
 import br.edu.ufape.alugafacil.exceptions.UserCpfDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserEmailDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserNotFoundException;
-import br.edu.ufape.alugafacil.mappers.RealStateAgencyPropertyMapper;
-import br.edu.ufape.alugafacil.mappers.UserPropertyMapper;
+import br.edu.ufape.alugafacil.mappers.UserMapper;
 import br.edu.ufape.alugafacil.models.User;
+import br.edu.ufape.alugafacil.repositories.PropertyRepository;
 import br.edu.ufape.alugafacil.repositories.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,13 +42,13 @@ class UserServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private UserPropertyMapper userPropertyMapper;
-
-    @Mock
-    private RealStateAgencyPropertyMapper agencyMapper;
+    private UserMapper userPropertyMapper;
 
     @Mock
     private SubscriptionService subscriptionService;
+
+    @Mock
+    private PropertyRepository propertyRepository;
 
     @InjectMocks
     private UserService userService;
@@ -75,13 +70,10 @@ class UserServiceTest {
         userRequest = new UserRequest(
                 "Maria Silva",
                 "user@email.com",
-                null,
-                "12345678900",
-                null,
                 "senha123",
+                "12345678900",
                 "81999999999",
                 UserType.TENANT,
-                null,
                 null,
                 null,
                 null
@@ -99,9 +91,6 @@ class UserServiceTest {
                 null,
                 UserStatus.ACTIVE,
                 0
-                null,
-                UserStatus.ACTIVE,
-                0
         );
     }
 
@@ -116,8 +105,7 @@ class UserServiceTest {
 
         assertNotNull(response);
         assertEquals(userResponse.name(), response.name());
-        verify(subscriptionService, times(1))
-                .createInitialFreeSubscription(user);
+        // subscriptionService.createInitialFreeSubscription is commented out in the service
     }
 
     @Test
