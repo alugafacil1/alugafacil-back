@@ -41,4 +41,5 @@ public record PropertyResponse(
     UUID ownerId,
     LocalDateTime createdAt,
     Long viewCount
+    
 ) {}

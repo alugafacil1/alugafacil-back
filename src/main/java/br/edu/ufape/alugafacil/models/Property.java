@@ -97,6 +97,7 @@ public class Property {
     @Enumerated(EnumType.STRING)
     private PropertyType type;
 
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
