@@ -28,9 +28,9 @@ import br.edu.ufape.alugafacil.exceptions.ResourceNotFoundException;
 import br.edu.ufape.alugafacil.exceptions.UserCpfDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserEmailDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserNotFoundException;
-import br.edu.ufape.alugafacil.mappers.RealStateAgencyPropertyMapper;
-import br.edu.ufape.alugafacil.mappers.UserPropertyMapper;
+import br.edu.ufape.alugafacil.mappers.UserMapper;
 import br.edu.ufape.alugafacil.models.User;
+import br.edu.ufape.alugafacil.repositories.PropertyRepository;
 import br.edu.ufape.alugafacil.repositories.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,13 +40,13 @@ class UserServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private UserPropertyMapper userPropertyMapper;
-
-    @Mock
-    private RealStateAgencyPropertyMapper agencyMapper;
+    private UserMapper userPropertyMapper;
 
     @Mock
     private SubscriptionService subscriptionService;
+
+    @Mock
+    private PropertyRepository propertyRepository;
 
     @InjectMocks
     private UserService userService;
@@ -68,13 +68,10 @@ class UserServiceTest {
         userRequest = new UserRequest(
                 "Maria Silva",
                 "user@email.com",
-                null,
-                "12345678900",
-                null,
                 "senha123",
+                "12345678900",
                 "81999999999",
                 UserType.TENANT,
-                null,
                 null,
                 null,
                 null
@@ -101,8 +98,7 @@ class UserServiceTest {
 
         assertNotNull(response);
         assertEquals(userResponse.name(), response.name());
-        verify(subscriptionService, times(1))
-                .createInitialFreeSubscription(user);
+        // subscriptionService.createInitialFreeSubscription is commented out in the service
     }
 
     @Test

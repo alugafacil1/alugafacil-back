@@ -4,13 +4,16 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import br.edu.ufape.alugafacil.controllers.UserController;
+import br.edu.ufape.alugafacil.dtos.realStateAgency.MemberResponse;
 import br.edu.ufape.alugafacil.dtos.realStateAgency.RealStateAgencyRequest;
 import br.edu.ufape.alugafacil.dtos.realStateAgency.RealStateAgencyResponse;
+import br.edu.ufape.alugafacil.dtos.user.RealtorRegistrationRequest;
 import br.edu.ufape.alugafacil.enums.UserType;
-import br.edu.ufape.alugafacil.mappers.RealStateAgencyPropertyMapper;
+import br.edu.ufape.alugafacil.mappers.RealStateAgencyMapper;
 import br.edu.ufape.alugafacil.models.Property;
 import br.edu.ufape.alugafacil.models.RealStateAgency;
 import br.edu.ufape.alugafacil.models.User;
@@ -22,11 +25,15 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class RealStateAgencyService {
+
+    private final UserController userController;
     
     private final RealStateAgencyRepository realStateAgencyRepository;
     private final UserRepository userRepository;
     private final PropertyRepository propertyRepository;
-    private final RealStateAgencyPropertyMapper mapper;
+    private final RealStateAgencyMapper mapper;
+    private final PasswordEncoder passwordEncoder;
+
 
     @Transactional(readOnly = true)
     public Page<RealStateAgencyResponse> getAllRealStateAgencies(Pageable pageable) {
@@ -41,12 +48,58 @@ public class RealStateAgencyService {
     }
 
     @Transactional
-    public RealStateAgencyResponse createRealStateAgency(RealStateAgencyRequest request) {
+    public RealStateAgencyResponse registerAgencyWithAdmin(RealStateAgencyRequest request) {
+    	
+    	User adminUser = new User();
+    	adminUser.setName(request.adminName());
+    	adminUser.setEmail(request.adminEmail());
+    	adminUser.setPassword(passwordEncoder.encode(request.adminPassword()));
+    	adminUser.setUserType(UserType.AGENCY_ADMIN);
+    	
+    	
+    	adminUser = userRepository.save(adminUser);
+    	
+    	
         RealStateAgency newAgency = mapper.toEntity(request);
         
-        RealStateAgency savedAgency = realStateAgencyRepository.save(newAgency);
+        newAgency.setUser(adminUser);
         
-        return mapper.toResponse(savedAgency);
+        newAgency = realStateAgencyRepository.save(newAgency);
+        
+        adminUser.setAgency(newAgency);
+        userRepository.save(adminUser);
+        
+        return mapper.toResponse(newAgency);
+    }
+    
+    @Transactional
+    public MemberResponse registerRealtor(RealtorRegistrationRequest request, UUID loggerUserId) {
+    	User loggedUser = getUserOrThrow(loggerUserId);
+    	
+    	RealStateAgency targetAgency = loggedUser.getAgency();
+    	
+    	if (targetAgency == null) {
+    		throw new IllegalArgumentException("O usuário logado não possui uma imobiliária vinculada.");
+    	}
+    	
+    	if (loggedUser.getUserType() != UserType.AGENCY_ADMIN) {
+            throw new IllegalArgumentException("Apenas o administrador da imobiliária pode cadastrar novos corretores.");
+        }
+    	
+    	User realtor = new User();
+        realtor.setName(request.name());
+        realtor.setEmail(request.email());
+        realtor.setCpf(request.cpf());
+        realtor.setCreciNumber(request.creciNumber());
+        realtor.setPhoneNumber(request.phoneNumber());
+        realtor.setPassword(passwordEncoder.encode(request.password()));
+        
+        realtor.setUserType(UserType.REALTOR); 
+        realtor.setAgency(targetAgency);
+
+        realtor = userRepository.save(realtor);
+
+        return mapper.toMemberResponse(realtor);
     }
 
     @Transactional

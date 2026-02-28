@@ -50,6 +50,7 @@ class UserPreferenceIntegrationTest {
                 5000,
                 1,
                 null,
+                null,
                 null
         );
 

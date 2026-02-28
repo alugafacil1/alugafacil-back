@@ -8,7 +8,7 @@ import br.edu.ufape.alugafacil.dtos.userPreferences.UserPreferenceResponse;
 import br.edu.ufape.alugafacil.enums.UserType;
 import br.edu.ufape.alugafacil.exceptions.UserNotFoundException;
 import br.edu.ufape.alugafacil.exceptions.UserPreferenceNotFound;
-import br.edu.ufape.alugafacil.mappers.UserPropertyMapper;
+import br.edu.ufape.alugafacil.mappers.UserMapper;
 import br.edu.ufape.alugafacil.mappers.UserSearchPreferenceMapper;
 import br.edu.ufape.alugafacil.models.Geolocation;
 import br.edu.ufape.alugafacil.models.User;
@@ -44,7 +44,7 @@ class UserPreferenceServiceTest {
     private UserSearchPreferenceMapper userSearchPreferenceMapper;
 
     @Mock
-    private UserPropertyMapper userPropertyMapper;
+    private UserMapper userPropertyMapper;
 
     @Mock
     private UserRepository userRepository;
@@ -62,13 +62,10 @@ class UserPreferenceServiceTest {
         UserRequest userRequest = new UserRequest(
                 "Usuário Teste",
                 "teste@email.com",
-                null,
-                "00000000000",
-                null,
                 "123456",
+                "00000000000",
                 "81999999999",
                 UserType.TENANT,
-                null,
                 null,
                 null,
                 null
@@ -86,6 +83,7 @@ class UserPreferenceServiceTest {
                 5000,
                 1,
                 geolocationRequest,
+                null,
                 userRequest
         );
 

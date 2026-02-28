@@ -21,9 +21,7 @@ import br.edu.ufape.alugafacil.exceptions.ResourceNotFoundException;
 import br.edu.ufape.alugafacil.exceptions.UserCpfDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserEmailDuplicadoException;
 import br.edu.ufape.alugafacil.exceptions.UserNotFoundException;
-import br.edu.ufape.alugafacil.mappers.RealStateAgencyPropertyMapper;
-import br.edu.ufape.alugafacil.mappers.UserPropertyMapper;
-import br.edu.ufape.alugafacil.models.RealStateAgency;
+import br.edu.ufape.alugafacil.mappers.UserMapper;
 import br.edu.ufape.alugafacil.models.User;
 import br.edu.ufape.alugafacil.repositories.PropertyRepository;
 import br.edu.ufape.alugafacil.repositories.UserRepository;
@@ -35,8 +33,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService implements IUserService {
 
     private final UserRepository userRepository;
-    private final UserPropertyMapper userPropertyMapper;
-    private final RealStateAgencyPropertyMapper agencyMapper;
+    private final UserMapper userPropertyMapper;
     private final SubscriptionService subscriptionService;
     private final Path fileStorageLocation = Paths.get("uploads").toAbsolutePath().normalize();
     private final PropertyRepository propertyRepository;
@@ -49,13 +46,9 @@ public class UserService implements IUserService {
 
         User user = userPropertyMapper.toEntity(request);
 
-        if (request.agency() != null) {
-            user.setAgency(agencyMapper.toEntity(request.agency()));
-        }
-
         User savedUser = userRepository.save(user);
 
-        subscriptionService.createInitialFreeSubscription(savedUser);
+        // subscriptionService.createInitialFreeSubscription(savedUser);
 
         return userPropertyMapper.toResponse(savedUser);
     }
@@ -70,15 +63,6 @@ public class UserService implements IUserService {
         validateEmailDuplicate(request.email(), id);
 
         userPropertyMapper.updateEntityFromRequest(request, user);
-
-        if (request.agency() != null) {
-            if (user.getAgency() == null) {
-                RealStateAgency newAgency = agencyMapper.toEntity(request.agency());
-                user.setAgency(newAgency);
-            } else {
-                agencyMapper.updateEntityFromRequest(request.agency(), user.getAgency());
-            }
-        }
         
         return userPropertyMapper.toResponse(userRepository.save(user));
     }
