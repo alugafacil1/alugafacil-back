@@ -2,6 +2,8 @@ package br.edu.ufape.alugafacil.dtos.property;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +30,20 @@ public record PropertyRequest(
     @NotNull(message = "O preço é obrigatório")
     @Positive(message = "O preço deve ser positivo")
     Integer priceInCents,
+
+    @Min(value = 0, message = "O aluguel semanal não pode ser negativo")
+    Integer weeklyRentInCents,
+
+    @Min(value = 0, message = "O valor da caução não pode ser negativo")
+    Integer securityDepositInCents,
+
+    @Min(value = 1, message = "O tempo mínimo deve ser de pelo menos 1 mês")
+    Integer minimumLeaseMonths,
+
+    @Min(value = 1, message = "O número máximo de ocupantes deve ser pelo menos 1")
+    Integer maxOccupants,
+
+    LocalDate availableFrom,
 
     @Min(value = 0, message = "Número de cômodos não pode ser negativo")
     Integer numberOfRooms,

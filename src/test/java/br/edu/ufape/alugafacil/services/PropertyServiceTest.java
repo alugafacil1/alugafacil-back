@@ -125,9 +125,11 @@ class PropertyServiceTest {
         Subscription subscription = new Subscription();
         subscription.setPlan(plan);
 
-
+        
         PropertyRequest request = new PropertyRequest(
-            "Casa Nova", "Descrição Top", null, null, 100000, 2, 1, 1, true, true, true, true, 
+            "Casa Nova", "Descrição Top", null, null, 100000, 
+            null, null, null, null, null, // weeklyRentInCents, securityDepositInCents, minimumLeaseMonths, maxOccupants, availableFrom
+            2, 1, 1, true, true, true, true, 
             "http://video.com", "879999999", null, null, null, PropertyStatus.ACTIVE, PropertyType.HOUSE, userId          
         );
 
@@ -145,7 +147,6 @@ class PropertyServiceTest {
         when(propertyRepository.save(propertyEntity)).thenReturn(propertyEntity);
         when(propertyMapper.toResponse(propertyEntity)).thenReturn(responseEsperado);
         
-
         lenient().when(preferenceRepository.findMatchingPreferences(
             any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
         )).thenReturn(Collections.emptyList());
@@ -173,7 +174,9 @@ class PropertyServiceTest {
 
         
         PropertyRequest request = new PropertyRequest(
-            "Casa", "Desc", null, null, 100, 1, 1, 1, false, false, false, true, 
+            "Casa", "Desc", null, null, 100, 
+            null, null, null, null, null, 
+            1, 1, 1, false, false, false, true, 
             null, "999", null, null, null, PropertyStatus.ACTIVE, PropertyType.HOUSE, userId
         );
 
@@ -208,7 +211,9 @@ class PropertyServiceTest {
 
         
         PropertyRequest request = new PropertyRequest(
-            "Casa", "Desc", null, null, 100, 1, 1, 1, false, false, false, true, 
+            "Casa", "Desc", null, null, 100, 
+            null, null, null, null, null, 
+            1, 1, 1, false, false, false, true, 
             "http://youtube.com/meuvideo", "999", null, null, null, PropertyStatus.ACTIVE, PropertyType.HOUSE, userId
         );
 

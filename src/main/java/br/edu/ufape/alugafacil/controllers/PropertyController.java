@@ -1,6 +1,7 @@
 package br.edu.ufape.alugafacil.controllers;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
@@ -27,7 +28,7 @@ import br.edu.ufape.alugafacil.dtos.property.PropertyFilterRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyResponse;
 import br.edu.ufape.alugafacil.dtos.property.PropertyStatusDTO;
-import br.edu.ufape.alugafacil.services.interfaces.IFileStorageService;
+import br.edu.ufape.alugafacil.repositories.FavoriteRepository;
 import br.edu.ufape.alugafacil.services.interfaces.IPropertyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,13 +40,14 @@ import lombok.RequiredArgsConstructor;
 public class PropertyController {
 	
 	private final IPropertyService propertyService;
-	private final IFileStorageService fileStorageService;
+	private final FavoriteRepository favoriteRepository;
 	
 	@PostMapping
 	public ResponseEntity<PropertyResponse> create(@Valid @RequestBody PropertyRequest request) {
 		PropertyResponse response = propertyService.createProperty(request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
+
 	
 	@GetMapping
 	public ResponseEntity<Page<PropertyResponse>> listAll(
@@ -122,5 +124,10 @@ public class PropertyController {
 		List<PropertyResponse> response = propertyService.getRecentProperties(limit);
 		return ResponseEntity.ok(response);
 	}
+
+	@GetMapping("/agency/{userId}")
+    public ResponseEntity<List<PropertyResponse>> listByAgency(@PathVariable UUID userId) {
+        return ResponseEntity.ok(propertyService.getPropertiesByAgencyAdminId(userId));
+    }
 }
 
