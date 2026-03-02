@@ -91,13 +91,27 @@ public class PropertyService implements IPropertyService {
         Property property = propertyMapper.toEntity(request);
         property.setUser(owner);
         // property.setIsPriority(plan.getIsPriority()); 
-        property.setStatus(PropertyStatus.ACTIVE);
+        if (request.status() != null) {
+            property.setStatus(request.status());
+        } else {
+            property.setStatus(PropertyStatus.ACTIVE);
+        }
 
         Property savedProperty = propertyRepository.save(property);
         
         notifyInterestedUsers(savedProperty);
         
         return propertyMapper.toResponse(savedProperty);
+    }
+
+    @Override
+    public List<PropertyResponse> getPropertiesByAgencyAdminId(UUID adminId) {
+        List<Property> properties = propertyRepository.findByAgencyAdminId(adminId);
+        
+        
+        return properties.stream()
+                .map(propertyMapper::toResponse) 
+                .toList();
     }
 
     /**

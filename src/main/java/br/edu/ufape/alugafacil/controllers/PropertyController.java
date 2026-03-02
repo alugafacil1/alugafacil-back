@@ -124,5 +124,10 @@ public class PropertyController {
 		List<PropertyResponse> response = propertyService.getRecentProperties(limit);
 		return ResponseEntity.ok(response);
 	}
+
+	@GetMapping("/agency/{userId}")
+    public ResponseEntity<List<PropertyResponse>> listByAgency(@PathVariable UUID userId) {
+        return ResponseEntity.ok(propertyService.getPropertiesByAgencyAdminId(userId));
+    }
 }
 
