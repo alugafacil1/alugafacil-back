@@ -21,7 +21,7 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 # Ajuste o nome do jar conforme o seu projeto
-COPY --from=build /app/target/*.jar app.jarr
+COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8081
 
