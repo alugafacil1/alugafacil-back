@@ -25,8 +25,9 @@ services:
     depends_on:
       - db
       - keycloak
-    volumes:
-      - alugafacil-uploads:/app/uploads
+    # volumes:
+    #   - alugafacil-uploads:/app/uploads
+      
 
   keycloak:
     image: quay.io/keycloak/keycloak:25.0.5

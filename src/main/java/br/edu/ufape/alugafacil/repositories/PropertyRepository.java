@@ -29,6 +29,10 @@ public interface PropertyRepository extends
 
 	List<Property> findTop10ByStatusOrderByViewCountDesc(PropertyStatus status);
 
+
+	@Query("SELECT p FROM Property p WHERE p.user.agency.user.id = :adminId")
+    List<Property> findByAgencyAdminId(@Param("adminId") UUID adminId);
+
 	
 	@Query("SELECT p FROM Property p WHERE p.status = :status ORDER BY p.createdAt DESC")
 	List<Property> findRecentProperties(@Param("status") PropertyStatus status, Pageable pageable);

@@ -24,4 +24,5 @@ public interface IPropertyService {
     void incrementViewCount(UUID propertyId);
     List<PropertyResponse> getTop10ByViewCount();
     List<PropertyResponse> getRecentProperties(int limit);
+    List<PropertyResponse> getPropertiesByAgencyAdminId(UUID adminId);
 }

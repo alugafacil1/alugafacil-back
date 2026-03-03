@@ -77,27 +77,41 @@ public class PropertyService implements IPropertyService {
         User owner = userRepository.findById(request.userId())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + request.userId()));
         
-        Plan plan = getUserActivePlan(owner);
-        long currentProperties = propertyRepository.countPropertiesByUser(owner.getUserId(), PropertyStatus.ACTIVE);
+        // Plan plan = getUserActivePlan(owner);
+        // long currentProperties = propertyRepository.countPropertiesByUser(owner.getUserId(), PropertyStatus.ACTIVE);
         
-        if (currentProperties >= plan.getPropertiesCount()) {
-            throw new RuntimeException("Upgrade necessário! Seu plano permite apenas " + plan.getPropertiesCount() + " imóveis.");
-        }
+        // if (currentProperties >= plan.getPropertiesCount()) {
+        //     throw new RuntimeException("Upgrade necessário! Seu plano permite apenas " + plan.getPropertiesCount() + " imóveis.");
+        // }
         
-        if (request.videoUrl() != null && !request.videoUrl().isEmpty() && !plan.getHasVideo()) {
-            throw new RuntimeException("Seu plano atual não permite adicionar vídeos ao anúncio.");
-        }
+        // if (request.videoUrl() != null && !request.videoUrl().isEmpty() && !plan.getHasVideo()) {
+        //     throw new RuntimeException("Seu plano atual não permite adicionar vídeos ao anúncio.");
+        // }
         
         Property property = propertyMapper.toEntity(request);
         property.setUser(owner);
-        property.setIsPriority(plan.getIsPriority()); 
-        property.setStatus(PropertyStatus.ACTIVE);
+        // property.setIsPriority(plan.getIsPriority()); 
+        if (request.status() != null) {
+            property.setStatus(request.status());
+        } else {
+            property.setStatus(PropertyStatus.ACTIVE);
+        }
 
         Property savedProperty = propertyRepository.save(property);
         
         notifyInterestedUsers(savedProperty);
         
         return propertyMapper.toResponse(savedProperty);
+    }
+
+    @Override
+    public List<PropertyResponse> getPropertiesByAgencyAdminId(UUID adminId) {
+        List<Property> properties = propertyRepository.findByAgencyAdminId(adminId);
+        
+        
+        return properties.stream()
+                .map(propertyMapper::toResponse) 
+                .toList();
     }
 
     /**
@@ -245,6 +259,16 @@ protected void notifyInterestedUsers(Property property) {
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Imóvel não encontrado"));
 
+        if (property.getPhotoUrls() != null && !property.getPhotoUrls().isEmpty()) {
+            List<String> fotosMantidas = request.photoUrls() != null ? request.photoUrls() : new ArrayList<>();
+            
+            for (String fotoAntiga : property.getPhotoUrls()) {
+                if (!fotosMantidas.contains(fotoAntiga)) {
+                    fileStorageService.deleteFile(fotoAntiga);
+                }
+            }
+        }
+
         Plan plan = getUserActivePlan(property.getUser());
 
         if (request.videoUrl() != null && !request.videoUrl().isBlank() && !plan.getHasVideo()) {
@@ -266,11 +290,19 @@ protected void notifyInterestedUsers(Property property) {
     }
 
     @Override
+    @Transactional
     public void deleteProperty(UUID id) {
-        if (!propertyRepository.existsById(id)) {
-            throw new RuntimeException("Imóvel não encontrado");
+
+        Property property = propertyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Imóvel não encontrado"));
+
+        if (property.getPhotoUrls() != null) {
+            for (String photoUrl : property.getPhotoUrls()) {
+                fileStorageService.deleteFile(photoUrl);
+            }
         }
-        propertyRepository.deleteById(id);
+
+        propertyRepository.delete(property);
     }
 
     @Override
