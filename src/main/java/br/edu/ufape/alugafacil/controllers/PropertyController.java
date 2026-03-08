@@ -28,6 +28,9 @@ import br.edu.ufape.alugafacil.dtos.property.PropertyFilterRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyResponse;
 import br.edu.ufape.alugafacil.dtos.property.PropertyStatusDTO;
+import br.edu.ufape.alugafacil.dtos.property.CombinedPropertiesResponse;
+import br.edu.ufape.alugafacil.dtos.simpleProperty.SimplePropertyRequest;
+import br.edu.ufape.alugafacil.dtos.simpleProperty.SimplePropertyResponse;
 import br.edu.ufape.alugafacil.repositories.FavoriteRepository;
 import br.edu.ufape.alugafacil.services.interfaces.IPropertyService;
 import jakarta.validation.Valid;
@@ -55,6 +58,16 @@ public class PropertyController {
 				@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, page = 0, size = 10) Pageable pageable
 			) {
 		Page<PropertyResponse> response = propertyService.getAllProperties(filters, pageable);
+		
+		return ResponseEntity.ok(response);
+	}
+
+	@GetMapping("/with-simple")
+	public ResponseEntity<CombinedPropertiesResponse> listAllWithSimple(
+				@ModelAttribute PropertyFilterRequest filters,
+				@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, page = 0, size = 10) Pageable pageable
+			) {
+		CombinedPropertiesResponse response = propertyService.getAllPropertiesWithSimple(filters, pageable);
 		
 		return ResponseEntity.ok(response);
 	}
@@ -129,5 +142,40 @@ public class PropertyController {
     public ResponseEntity<List<PropertyResponse>> listByAgency(@PathVariable UUID userId) {
         return ResponseEntity.ok(propertyService.getPropertiesByAgencyAdminId(userId));
     }
+
+	// --- SimpleProperty Endpoints ---
+	
+	@PostMapping("/simple")
+	public ResponseEntity<SimplePropertyResponse> createSimpleProperty(
+			@Valid @RequestBody SimplePropertyRequest request) {
+		SimplePropertyResponse response = propertyService.createSimpleProperty(request);
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+	}
+
+	@GetMapping("/simple/{id}")
+	public ResponseEntity<SimplePropertyResponse> getSimplePropertyById(@PathVariable UUID id) {
+		SimplePropertyResponse response = propertyService.getSimplePropertyById(id);
+		return ResponseEntity.ok(response);
+	}
+
+	@GetMapping("/simple")
+	public ResponseEntity<List<SimplePropertyResponse>> getAllSimpleProperties() {
+		List<SimplePropertyResponse> response = propertyService.getAllSimpleProperties();
+		return ResponseEntity.ok(response);
+	}
+
+	@PutMapping("/simple/{id}")
+	public ResponseEntity<SimplePropertyResponse> updateSimpleProperty(
+			@PathVariable UUID id,
+			@Valid @RequestBody SimplePropertyRequest request) {
+		SimplePropertyResponse response = propertyService.updateSimpleProperty(id, request);
+		return ResponseEntity.ok(response);
+	}
+
+	@DeleteMapping("/simple/{id}")
+	public ResponseEntity<Void> deleteSimpleProperty(@PathVariable UUID id) {
+		propertyService.deleteSimpleProperty(id);
+		return ResponseEntity.noContent().build();
+	}
 }
 
