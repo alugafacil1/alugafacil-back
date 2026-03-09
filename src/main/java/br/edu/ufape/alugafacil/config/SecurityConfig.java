@@ -46,7 +46,7 @@ public class SecurityConfig {
                 
                 .requestMatchers(HttpMethod.GET, "/api/properties/recent").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/properties/**").permitAll() 
-                
+                .requestMatchers(HttpMethod.POST, "/api/realStateAgencies/register").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2ResourceServer ->
@@ -70,8 +70,8 @@ public class SecurityConfig {
         
         configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
-        configuration.setAllowCredentials(false);
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "X-User-Id"));
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

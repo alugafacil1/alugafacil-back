@@ -14,14 +14,15 @@ import br.edu.ufape.alugafacil.dtos.property.PropertyResponse;
 import br.edu.ufape.alugafacil.dtos.property.PropertyStatusDTO;
 import br.edu.ufape.alugafacil.dtos.simpleProperty.SimplePropertyRequest;
 import br.edu.ufape.alugafacil.dtos.simpleProperty.SimplePropertyResponse;
+import br.edu.ufape.alugafacil.enums.PropertyStatus;
 
 public interface IPropertyService {
 	PropertyResponse createProperty(PropertyRequest request);
 	PropertyResponse getPropertyById(UUID id);
 	Page<PropertyResponse> getAllProperties(PropertyFilterRequest filters, Pageable pageable);
-	CombinedPropertiesResponse getAllPropertiesWithSimple(PropertyFilterRequest filters, Pageable pageable);
-	List<PropertyResponse> getPropertiesByUserId(UUID userId);
-    PropertyResponse updateProperty(UUID id, PropertyRequest request);
+	Page<PropertyResponse> getPropertiesByUserId(UUID userId, PropertyStatus status, Pageable pageable);
+    CombinedPropertiesResponse getAllPropertiesWithSimple(PropertyFilterRequest filters, Pageable pageable);
+	PropertyResponse updateProperty(UUID id, PropertyRequest request);
     void deleteProperty(UUID id);
     PropertyResponse addPhotos(UUID id, List<MultipartFile> files);
     void updateStatus(UUID id, PropertyStatusDTO dto);
