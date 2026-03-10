@@ -409,19 +409,20 @@ public class PropertyService implements IPropertyService {
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Imóvel não encontrado"));
         
-        Plan plan = getUserActivePlan(property.getOwner());
+//        Plan plan = getUserActivePlan(property.getOwner());
+        
         if (property.getPhotoUrls() == null) {
             property.setPhotoUrls(new ArrayList<>());
         }
         
-        int currentCount = property.getPhotoUrls().size();
-        int newCount = files.size();
-        int limit = plan.getImagesCount();
-        
-        if ((currentCount + newCount) > limit) {
-            throw new RuntimeException("Limite de fotos excedido! Máximo: " + limit);
-        }
-        
+        // int currentCount = property.getPhotoUrls().size();
+        // int newCount = files.size();
+//        int limit = plan.getImagesCount();
+//        
+//        if ((currentCount + newCount) > limit) {
+//            throw new RuntimeException("Limite de fotos excedido! Máximo: " + limit);
+//        }
+//        
         for (MultipartFile file : files) {
             String photoUrl = fileStorageService.uploadFile(file);
             property.getPhotoUrls().add(photoUrl);
