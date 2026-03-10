@@ -12,18 +12,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.edu.ufape.alugafacil.dtos.property.PropertyResponse;
+import br.edu.ufape.alugafacil.mappers.PropertyMapper;
 import br.edu.ufape.alugafacil.models.Favorite;
+import br.edu.ufape.alugafacil.models.Property;
+import br.edu.ufape.alugafacil.repositories.FavoriteRepository;
 import br.edu.ufape.alugafacil.services.FavoriteService;
+import br.edu.ufape.alugafacil.services.interfaces.IPropertyService;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/favorites")
+@RequiredArgsConstructor
 public class FavoriteController {
 
     private final FavoriteService favoriteService;
+    private final PropertyMapper propertyMapper;
 
-    public FavoriteController(FavoriteService favoriteService) {
-        this.favoriteService = favoriteService;
-    }
 
     // Endpoint: POST /api/favorites/toggle?userId=123&propertyId=456
     @PostMapping("/toggle")
@@ -51,8 +56,23 @@ public class FavoriteController {
 
     // Endpoint: GET /api/favorites/user/{userId}
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Favorite>> getUserFavorites(@PathVariable UUID userId) {
+    public ResponseEntity<List<PropertyResponse>> getUserFavorites(@PathVariable UUID userId) {
+        
         List<Favorite> favorites = favoriteService.getUserFavorites(userId);
-        return ResponseEntity.ok(favorites);
+        
+        List<PropertyResponse> responseList = favorites.stream()
+            .map(favorite -> {
+                Property property = favorite.getProperty();
+                
+                // 1. Extraímos para uma variável tipada. 
+                // Se der erro de linha vermelha AQUI, passe o mouse em cima para ver o que o toResponse exige!
+                // Se ele pedir Long, e você passar null, faça um cast: (Long) null
+                PropertyResponse response = propertyMapper.toResponse(property, null); 
+                
+                return response;
+            })
+            .toList();
+
+        return ResponseEntity.ok(responseList);
     }
 }
