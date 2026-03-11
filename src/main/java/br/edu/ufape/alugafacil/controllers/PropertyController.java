@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import br.edu.ufape.alugafacil.dtos.property.CombinedPropertiesResponse;
 import br.edu.ufape.alugafacil.dtos.property.PropertyFilterRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
@@ -149,10 +151,16 @@ public class PropertyController {
 	
 	@PostMapping(value = "/simple", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<SimplePropertyResponse> createSimpleProperty(
-			@Valid @RequestPart SimplePropertyRequest request,
-			@RequestPart(value = "files", required = false) List<MultipartFile> photos) {
-		List<MultipartFile> filesToUpload = (photos != null) ? photos : List.of();
+			@RequestPart("request") String requestJson,
+			@RequestPart(value = "files", required = false) List<MultipartFile> photos) throws Exception {
+
+		ObjectMapper mapper = new ObjectMapper();
+		SimplePropertyRequest request = mapper.readValue(requestJson, SimplePropertyRequest.class);
+
+		List<MultipartFile> filesToUpload = photos != null ? photos : List.of();
+
 		SimplePropertyResponse created = propertyService.createSimpleProperty(request, filesToUpload);
+
 		return ResponseEntity.status(HttpStatus.CREATED).body(created);
 	}
 
