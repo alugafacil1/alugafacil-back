@@ -7,10 +7,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import br.edu.ufape.alugafacil.dtos.property.CombinedPropertiesResponse;
 import br.edu.ufape.alugafacil.dtos.property.PropertyFilterRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyResponse;
 import br.edu.ufape.alugafacil.dtos.property.PropertyStatusDTO;
+import br.edu.ufape.alugafacil.dtos.simpleProperty.SimplePropertyRequest;
+import br.edu.ufape.alugafacil.dtos.simpleProperty.SimplePropertyResponse;
 import br.edu.ufape.alugafacil.enums.PropertyStatus;
 
 public interface IPropertyService {
@@ -25,6 +28,12 @@ public interface IPropertyService {
     void incrementViewCount(UUID propertyId);
     List<PropertyResponse> getTop10ByViewCount();
     List<PropertyResponse> getRecentProperties(int limit);
+    List<SimplePropertyResponse> getAllSimpleProperties();
+    CombinedPropertiesResponse getAllPropertiesWithSimple(PropertyFilterRequest filters, Pageable pageable);
+    SimplePropertyResponse createSimpleProperty(SimplePropertyRequest request, List<MultipartFile> photos);
+    SimplePropertyResponse updateSimpleProperty(UUID id, SimplePropertyRequest request);
+    void deleteSimpleProperty(UUID id);
+    SimplePropertyResponse getSimplePropertyById(UUID id);
     List<PropertyResponse> getPropertiesByUserId(UUID userId);
     List<PropertyResponse> getPropertiesByAgencyId(UUID agencyId);
 }

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,13 +21,19 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import br.edu.ufape.alugafacil.dtos.property.CombinedPropertiesResponse;
 import br.edu.ufape.alugafacil.dtos.property.PropertyFilterRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyResponse;
 import br.edu.ufape.alugafacil.dtos.property.PropertyStatusDTO;
+import br.edu.ufape.alugafacil.dtos.simpleProperty.SimplePropertyRequest;
+import br.edu.ufape.alugafacil.dtos.simpleProperty.SimplePropertyResponse;
 import br.edu.ufape.alugafacil.enums.PropertyStatus;
 import br.edu.ufape.alugafacil.repositories.FavoriteRepository;
 import br.edu.ufape.alugafacil.services.interfaces.IPropertyService;
@@ -139,5 +146,60 @@ public class PropertyController {
     ) {
 		return ResponseEntity.ok(propertyService.getPropertiesByUserId(userId, status, pageable));
 	}
-}
 
+	// --- SimpleProperty Endpoints ---
+
+	@GetMapping("/with-simple")
+	public ResponseEntity<CombinedPropertiesResponse> listAllWithSimple(
+				@ModelAttribute PropertyFilterRequest filters,
+				@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, page = 0, size = 10) Pageable pageable
+			) {
+		CombinedPropertiesResponse response = propertyService.getAllPropertiesWithSimple(filters, pageable);
+		
+		return ResponseEntity.ok(response);
+	}
+	
+	@PostMapping(value = "/simple", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<SimplePropertyResponse> createSimpleProperty(
+			@RequestPart("request") String requestJson,
+			@RequestPart(value = "files", required = false) List<MultipartFile> photos) throws Exception {
+
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			SimplePropertyRequest request = mapper.readValue(requestJson, SimplePropertyRequest.class);
+			List<MultipartFile> filesToUpload = photos != null ? photos : List.of();
+			SimplePropertyResponse created = propertyService.createSimpleProperty(request, filesToUpload);
+	
+			return ResponseEntity.status(HttpStatus.CREATED).body(created);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.badRequest().build();
+		}
+	}
+
+	@GetMapping("/simple/{id}")
+	public ResponseEntity<SimplePropertyResponse> getSimplePropertyById(@PathVariable UUID id) {
+		SimplePropertyResponse response = propertyService.getSimplePropertyById(id);
+		return ResponseEntity.ok(response);
+	}
+
+	@GetMapping("/simple")
+	public ResponseEntity<List<SimplePropertyResponse>> getAllSimpleProperties() {
+		List<SimplePropertyResponse> response = propertyService.getAllSimpleProperties();
+		return ResponseEntity.ok(response);
+	}
+
+	@PutMapping("/simple/{id}")
+	public ResponseEntity<SimplePropertyResponse> updateSimpleProperty(
+			@PathVariable UUID id,
+			@Valid @RequestBody SimplePropertyRequest request) {
+		SimplePropertyResponse response = propertyService.updateSimpleProperty(id, request);
+		return ResponseEntity.ok(response);
+	}
+
+	@DeleteMapping("/simple/{id}")
+	public ResponseEntity<Void> deleteSimpleProperty(@PathVariable UUID id) {
+		propertyService.deleteSimpleProperty(id);
+		return ResponseEntity.noContent().build();
+	}
+}

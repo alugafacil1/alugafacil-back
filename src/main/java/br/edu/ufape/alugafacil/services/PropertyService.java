@@ -21,23 +21,29 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 
+import br.edu.ufape.alugafacil.dtos.property.CombinedPropertiesResponse;
 import br.edu.ufape.alugafacil.dtos.property.PropertyFilterRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyRequest;
 import br.edu.ufape.alugafacil.dtos.property.PropertyResponse;
 import br.edu.ufape.alugafacil.dtos.property.PropertyStatusDTO;
+import br.edu.ufape.alugafacil.dtos.simpleProperty.SimplePropertyRequest;
+import br.edu.ufape.alugafacil.dtos.simpleProperty.SimplePropertyResponse;
 import br.edu.ufape.alugafacil.enums.PaymentStatus;
 import br.edu.ufape.alugafacil.enums.PropertyStatus;
 import br.edu.ufape.alugafacil.enums.UserType;
 import br.edu.ufape.alugafacil.mappers.PropertyMapper;
+import br.edu.ufape.alugafacil.mappers.SimplePropertyMapper;
 // import br.edu.ufape.alugafacil.models.Plan;
 import br.edu.ufape.alugafacil.models.Property;
 import br.edu.ufape.alugafacil.models.PropertyView;
 import br.edu.ufape.alugafacil.models.QProperty;
+import br.edu.ufape.alugafacil.models.SimpleProperty;
 import br.edu.ufape.alugafacil.models.RealStateAgency;
 import br.edu.ufape.alugafacil.models.User;
 import br.edu.ufape.alugafacil.models.UserSearchPreference;
 import br.edu.ufape.alugafacil.repositories.PropertyRepository;
 import br.edu.ufape.alugafacil.repositories.PropertyViewRepository;
+import br.edu.ufape.alugafacil.repositories.SimplePropertyRepository;
 import br.edu.ufape.alugafacil.repositories.SubscriptionRepository;
 import br.edu.ufape.alugafacil.repositories.RealStateAgencyRepository;
 import br.edu.ufape.alugafacil.repositories.UserRepository;
@@ -62,6 +68,8 @@ public class PropertyService implements IPropertyService {
     private final UserSearchPreferenceRepository preferenceRepository;
     private final INotificationService notificationService;
     private final SubscriptionRepository subscriptionRepository;
+    private final SimplePropertyRepository simplePropertyRepository;
+    private final SimplePropertyMapper simplePropertyMapper;
     private final RealStateAgencyRepository agencyRepository;
     
     // private Plan getUserActivePlan(User user) {
@@ -502,4 +510,65 @@ public class PropertyService implements IPropertyService {
                 .map(p -> propertyMapper.toResponse(p, viewCounts.getOrDefault(p.getPropertyId(), 0L)))
                 .collect(Collectors.toList());
     }
+
+    @Override
+	public List<SimplePropertyResponse> getAllSimpleProperties() {
+		List<SimpleProperty> simpleProperties = simplePropertyRepository.findAll();
+		return simpleProperties.stream()
+				.map(simplePropertyMapper::toResponse)
+				.collect(Collectors.toList());
+	}
+
+
+    @Override
+	public CombinedPropertiesResponse getAllPropertiesWithSimple(PropertyFilterRequest filters, Pageable pageable) {
+		Page<PropertyResponse> properties = getAllProperties(filters, pageable);
+		List<SimplePropertyResponse> simpleProperties = getAllSimpleProperties();
+		
+		return new CombinedPropertiesResponse(properties, simpleProperties);
+	}
+
+    @Override
+	@Transactional
+	public SimplePropertyResponse createSimpleProperty(SimplePropertyRequest request, List<MultipartFile> photos) {
+		SimpleProperty simpleProperty = simplePropertyMapper.toEntity(request);
+		if (photos != null && !photos.isEmpty()) {
+			List<String> photoUrls = new ArrayList<>();
+			for (MultipartFile file : photos) {
+				String url = fileStorageService.uploadFile(file);
+				photoUrls.add(url);
+			}
+			simpleProperty.setPhotoUrls(photoUrls);
+		}
+		SimpleProperty saved = simplePropertyRepository.save(simpleProperty);
+		return simplePropertyMapper.toResponse(saved);
+	}
+
+    @Override
+	@Transactional
+	public SimplePropertyResponse updateSimpleProperty(UUID id, SimplePropertyRequest request) {
+		SimpleProperty simpleProperty = simplePropertyRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Propriedade Simples não encontrada"));
+		
+		SimpleProperty updated = simplePropertyMapper.toEntity(request);
+		updated.setId(id);
+		SimpleProperty saved = simplePropertyRepository.save(updated);
+		return simplePropertyMapper.toResponse(saved);
+	}
+
+    @Override
+	@Transactional
+	public void deleteSimpleProperty(UUID id) {
+		if (!simplePropertyRepository.existsById(id)) {
+			throw new RuntimeException("Propriedade Simples não encontrada");
+		}
+		simplePropertyRepository.deleteById(id);
+	}
+
+    @Override
+	public SimplePropertyResponse getSimplePropertyById(UUID id) {
+		SimpleProperty simpleProperty = simplePropertyRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Propriedade Simples não encontrada"));
+		return simplePropertyMapper.toResponse(simpleProperty);
+	}
 }
