@@ -3,21 +3,26 @@ FROM maven:3.9.6-eclipse-temurin-21 AS build
 
 WORKDIR /app
 
-# 1. Copia APENAS o pom.xml primeiro
+# Copia apenas o pom primeiro (cache)
 COPY pom.xml .
-
-# 2. Baixa as dependências (Isso ficará em cache se o pom.xml não mudar)
 RUN mvn dependency:go-offline
 
-# 3. Copia o código-fonte (src)
+# Copia o código
 COPY src ./src
 
-# 4. Compila o projeto (agora é rápido, pois as libs já estão lá)
+# Build
 RUN mvn clean package -DskipTests
 
-# Estágio Final (igual ao anterior)
-FROM eclipse-temurin:21-jdk
+# ===============================
+# Stage 2 - Runtime
+# ===============================
+FROM eclipse-temurin:21-jre
+
 WORKDIR /app
+
+# Ajuste o nome do jar conforme o seu projeto
 COPY --from=build /app/target/*.jar app.jar
+
 EXPOSE 8081
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+ENTRYPOINT ["sh", "-c", "java -jar app.jar --server.port=${PORT}"]

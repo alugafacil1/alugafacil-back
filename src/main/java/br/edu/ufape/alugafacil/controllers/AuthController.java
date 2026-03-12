@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -23,6 +24,10 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
         TokenResponse token = keycloakService.login(request.email(), request.password());
+        Optional<User> user = userRepository.findByEmail(request.email());
+        if (user.isPresent()) {
+            token.setUser_id(user.get().getUserId().toString());
+        }
         return ResponseEntity.ok(token);
     }
 

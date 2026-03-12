@@ -14,4 +14,5 @@ public class TokenResponse {
     private String token_type;
     private String scope;
     private List<String> roles;
+    private String user_id;
 }
