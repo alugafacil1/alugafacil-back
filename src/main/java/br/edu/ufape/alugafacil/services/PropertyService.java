@@ -96,13 +96,14 @@ public class PropertyService implements IPropertyService {
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         List<Property> properties;
-
-        if (user.getUserType() == UserType.REALTOR) {
+        if (user.getUserType() == UserType.ADMIN) {
+            properties = propertyRepository.findAll();
+        } else if (user.getUserType() == UserType.REALTOR) {
             properties = propertyRepository.findByAssignedRealtor_UserId(userId);
         } else {
             properties = propertyRepository.findByOwner_UserId(userId);
         }
-
+        
         List<UUID> ids = properties.stream().map(Property::getPropertyId).toList();
         Map<UUID, Long> viewCounts = getViewCountMap(ids);
 
@@ -321,12 +322,18 @@ public class PropertyService implements IPropertyService {
 
         Page<Property> propertyPage;
 
-        if (user.getUserType() == UserType.REALTOR) {
+        if (user.getUserType() == UserType.ADMIN) {
+            propertyPage = (status == null) 
+                ? propertyRepository.findAll(pageable) 
+                : propertyRepository.findByStatus(status, pageable);
+
+        } else if (user.getUserType() == UserType.REALTOR) {
             propertyPage = (status == null) 
                 ? propertyRepository.findByAssignedRealtor_UserId(userId, pageable)
                 : propertyRepository.findByAssignedRealtor_UserIdAndStatus(userId, status, pageable);
                 
-        } else if (user.getUserType() == UserType.AGENCY_ADMIN && user.getAgency() != null) {
+        } else if ((user.getUserType() == UserType.AGENCY_ADMIN) 
+                    && user.getAgency() != null) {
             propertyPage = (status == null)
                 ? propertyRepository.findByAgency_AgencyId(user.getAgency().getAgencyId(), pageable)
                 : propertyRepository.findByAgency_AgencyIdAndStatus(user.getAgency().getAgencyId(), status, pageable);

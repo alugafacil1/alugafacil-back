@@ -101,7 +101,7 @@ INSERT INTO plan (
     has_video, 
     has_notification, 
     is_priority, 
-    target_audience,  -- <--- CORREÇÃO 1: Nome da coluna atualizado
+    target_audience,
     created_at, 
     updated_at
 ) VALUES 
@@ -112,7 +112,7 @@ INSERT INTO plan (
     1, 
     5, 
     false, false, false, 
-    'OWNER',          -- <--- CORREÇÃO 2: Valor válido do Enum UserType
+    'OWNER',
     NOW(), NOW()
 ),
 (
@@ -132,6 +132,7 @@ INSERT INTO plan (
     9999, 
     20, 
     true, true, true, 
-    'REALTOR',        -- <--- CORREÇÃO 3: Valor válido do Enum UserType
+    'REALTOR',
     NOW(), NOW()
 );
+

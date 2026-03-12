@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import br.edu.ufape.alugafacil.enums.UserType;
 import br.edu.ufape.alugafacil.models.User;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
@@ -24,4 +25,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findByAgencyId(UUID agencyId);
     
     Page<User> findByAgency_AgencyId(UUID agencyId, Pageable pageable);
+    
+    Page<User> findByUserType(UserType userType, Pageable pageable);
 }

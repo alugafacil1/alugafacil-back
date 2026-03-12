@@ -185,4 +185,15 @@ public class RealStateAgencyController {
             return ResponseEntity.badRequest().build();
         }
     }
+    
+    @GetMapping("/realtors/all")
+    public ResponseEntity<Page<UserResponse>> getAllRealtors(
+            @PageableDefault(size = 10, page = 0, sort = "name") Pageable pageable) {
+        try {
+            Page<UserResponse> realtors = realStateAgencyService.getAllRealtors(pageable);
+            return ResponseEntity.ok(realtors);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

@@ -45,7 +45,11 @@ public class SecurityConfig {
                 .requestMatchers("/uploads/**").permitAll()
                 
                 .requestMatchers(HttpMethod.GET, "/api/properties/recent").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/properties/**").permitAll() 
+                .requestMatchers(HttpMethod.GET, "/api/properties/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/users/uploads/**").permitAll() 
+                .requestMatchers(HttpMethod.POST, "/api/users/uploads/**").permitAll() 
+                .requestMatchers(HttpMethod.GET, "/api/uploads/logos/**").permitAll() 
+                .requestMatchers(HttpMethod.POST, "/api/uploads/logos/**").permitAll() 
                 .requestMatchers(HttpMethod.POST, "/api/realStateAgencies/register").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/realStateAgencies/*/photo").permitAll()
                 .anyRequest().authenticated()

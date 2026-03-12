@@ -34,6 +34,9 @@ public interface PropertyRepository extends
     @Query("SELECT p FROM Property p WHERE p.status = :status ORDER BY p.createdAt DESC")
     List<Property> findRecentProperties(@Param("status") PropertyStatus status, Pageable pageable);
     
+    Page<Property> findByStatus(PropertyStatus status, Pageable pageable);
+    
+    
     List<Property> findByAgency_AgencyId(UUID agencyId);
     
     List<Property> findByAssignedRealtor_UserId(UUID realtorId);

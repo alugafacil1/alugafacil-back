@@ -281,6 +281,11 @@ public class RealStateAgencyService {
             throw new RuntimeException("Erro ao fazer o upload da logomarca: " + e.getMessage(), e);
         }
     }
+    
+    public Page<UserResponse> getAllRealtors(Pageable pageable) {
+        return userRepository.findByUserType(UserType.REALTOR, pageable)
+                .map(userMapper::toResponse);
+    }
 
     // =========================================================================
     // MÉTODOS PRIVADOS AUXILIARES
