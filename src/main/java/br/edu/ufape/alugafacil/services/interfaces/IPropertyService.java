@@ -34,4 +34,6 @@ public interface IPropertyService {
     SimplePropertyResponse updateSimpleProperty(UUID id, SimplePropertyRequest request);
     void deleteSimpleProperty(UUID id);
     SimplePropertyResponse getSimplePropertyById(UUID id);
+    List<PropertyResponse> getPropertiesByUserId(UUID userId);
+    List<PropertyResponse> getPropertiesByAgencyId(UUID agencyId);
 }

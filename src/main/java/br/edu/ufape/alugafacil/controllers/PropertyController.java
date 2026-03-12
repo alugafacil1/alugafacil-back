@@ -127,7 +127,17 @@ public class PropertyController {
 		List<PropertyResponse> response = propertyService.getRecentProperties(limit);
 		return ResponseEntity.ok(response);
 	}
+
+    @GetMapping("/agency/{userId}")
+    public ResponseEntity<List<PropertyResponse>> listByAgency(@PathVariable UUID userId) {
+        return ResponseEntity.ok(propertyService.getPropertiesByAgencyId(userId));
+    }
 	
+	@GetMapping("/owner/{userId}")
+	public ResponseEntity<List<PropertyResponse>> listByOwner(@PathVariable UUID userId) {
+		return ResponseEntity.ok(propertyService.getPropertiesByUserId(userId));
+	}
+
 	@GetMapping("/user/{userId}")
 	public ResponseEntity<Page<PropertyResponse>> listByUser(
             @PathVariable UUID userId,
