@@ -154,14 +154,17 @@ public class PropertyController {
 			@RequestPart("request") String requestJson,
 			@RequestPart(value = "files", required = false) List<MultipartFile> photos) throws Exception {
 
-		ObjectMapper mapper = new ObjectMapper();
-		SimplePropertyRequest request = mapper.readValue(requestJson, SimplePropertyRequest.class);
-
-		List<MultipartFile> filesToUpload = photos != null ? photos : List.of();
-
-		SimplePropertyResponse created = propertyService.createSimpleProperty(request, filesToUpload);
-
-		return ResponseEntity.status(HttpStatus.CREATED).body(created);
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			SimplePropertyRequest request = mapper.readValue(requestJson, SimplePropertyRequest.class);
+			List<MultipartFile> filesToUpload = photos != null ? photos : List.of();
+			SimplePropertyResponse created = propertyService.createSimpleProperty(request, filesToUpload);
+	
+			return ResponseEntity.status(HttpStatus.CREATED).body(created);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.badRequest().build();
+		}
 	}
 
 	@GetMapping("/simple/{id}")
