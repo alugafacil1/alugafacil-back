@@ -17,7 +17,6 @@ public record AddressRequest(
     String state,
 
     @NotBlank(message = "O CEP é obrigatório")
-    @Pattern(regexp = "\\d{5}-\\d{3}", message = "CEP inválido") 
     String postalCode,
 
     @NotBlank(message = "O número é obrigatório") 
